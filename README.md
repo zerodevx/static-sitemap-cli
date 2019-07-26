@@ -5,14 +5,14 @@ Simple CLI to pre-generate XML sitemaps for static sites locally.
 Built in 10 minutes. :stuck_out_tongue_winking_eye:
 
 
-### Install
+## Install
 
 ```
 npm i -g static-sitemap-cli
 ```
 
 
-### Usage
+## Usage
 
 Syntax: `static-sitemap-cli <BASEURL> <options>`
 
@@ -46,7 +46,7 @@ By default outputs to `stdout`. So that you can pipe it to do other stuff.
 | -n     | --no-clean   | disable clean URLs                                              |
 | -s     | --slash      | add trailing slash to all URLs                                  |
 
-**Clean URLs**
+#### Clean URLs
 
 Whether or not to include the `.html` extension. By default, something like:
 
@@ -54,7 +54,7 @@ Whether or not to include the `.html` extension. By default, something like:
 
 Pass `-n` option to disable this behavior.
 
-**Trailing Slashes**
+#### Trailing Slashes
 
 Control whether or not URLs should include trailing slashes. For example:
 
@@ -63,9 +63,9 @@ Control whether or not URLs should include trailing slashes. For example:
 For obvious reasons, this cannot be used together with `-n`.
 
 
-### Examples
+## Examples
 
-**Create sitemap for `dist/` folder**
+#### Create sitemap for `dist/` folder
 
 ```
 static-sitemap-cli https://example.com -r dist/ > dist/sitemap.xml
@@ -73,13 +73,13 @@ static-sitemap-cli https://example.com -r dist/ > dist/sitemap.xml
 
 Note: Just put `dist/` for that location, not `dist/.` or `./dist/**`.
 
-**Ignore a bunch of files**
+#### Ignore a bunch of files
 
 ```
 static-sitemap-cli https://example.com -i 404.html,foo/*.html > sm.xml
 ```
 
-**Set priority of certain pages**
+#### Set priority of certain pages
 
 By default, the optional `<priority>` label ([protocol reference](https://www.sitemaps.org/protocol.html)) is excluded,
 so every pages' default is 0.5. To change the *relative* priority (to 0.1) of certain pages:
@@ -89,12 +89,12 @@ static-sitemap-cli https://example.com -p **/privacy-policy/**,0.1 **/terms-of-s
 ```
 
 
-### To-do
+## To-do
 
 Add tests! :sweat_smile:
 
 
-### Changelog
+## Changelog
 
 **v0.1.0 - 2019-07-26:**
 * Initial release.
