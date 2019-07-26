@@ -25,7 +25,10 @@
   ],
   "homepage": "https://github.com/zerodevx/static-sitemap-cli",
   "keywords": [
-    "oclif"
+    "XML",
+    "sitemap-generator",
+    "static-site",
+    "CLI"
   ],
   "license": "ISC",
   "main": "src/index.js",
@@ -34,6 +37,6 @@
   },
   "repository": "zerodevx/static-sitemap-cli",
   "scripts": {
-    "test": "echo NO TESTS"
+    "test": "echo WIP! && exit 1"
   }
 }
