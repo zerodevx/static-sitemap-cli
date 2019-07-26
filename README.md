@@ -22,14 +22,22 @@ At its simplest, just go to your `dist` folder and run:
 static-sitemap-cli https://example.com > sitemap.xml
 ```
 
-By default outputs to `stdout`. So that you can pipe it to do other stuff.
+OR, because it's quite a mouthful:
+
+```
+sscli https://example.com > sitemap.xml
+```
+
+Where `sscli` is just an alias of `static-sitemap-cli`. CLI by default outputs to `stdout` -
+so that you can pipe it to do other cool stuff.
+
 
 
 ### Arguments
 
-| Argument | Description |
-|----------|-------------|
-| BASEURL  | Base URL that is prefixed to all location entries. For example: https://example.com/ |
+| Argument | Description                                                                            |
+|----------|----------------------------------------------------------------------------------------|
+| BASEURL  | Base URL that is prefixed to all location entries. For example: `https://example.com/` |
 
 
 ### Options
@@ -38,7 +46,7 @@ By default outputs to `stdout`. So that you can pipe it to do other stuff.
 |--------|--------------|-----------------------------------------------------------------|
 | -h     | --help       | show CLI help                                                   |
 | -v     | --version    | show CLI version                                                |
-| -r     | --root       | [default: .] root dir to start from                             |
+| -r     | --root       | [default: ./] root dir to start from                             |
 | -m     | --match      | [default: .html] comma-separated list of extensions to match    |
 | -i     | --ignore     | [default: 404.html] comma-separated list of globs to ignore     |
 | -p     | --priority   | comma-separated glob/priority pair; eg: foo/*.html,0.1          |
@@ -71,12 +79,18 @@ For obvious reasons, this cannot be used together with `-n`.
 static-sitemap-cli https://example.com -r dist/ > dist/sitemap.xml
 ```
 
+OR
+
+```
+sscli https://example.com -r dist/ > dist/sitemap.xml
+```
+
 Note: Just put `dist/` for that location, not `dist/.` or `./dist/**`.
 
 #### Ignore a bunch of files
 
 ```
-static-sitemap-cli https://example.com -i 404.html,foo/*.html > sm.xml
+sscli https://example.com -i 404.html,foo/*.html > sm.xml
 ```
 
 #### Set priority of certain pages
@@ -85,7 +99,7 @@ By default, the optional `<priority>` label ([protocol reference](https://www.si
 so every pages' default is 0.5. To change the *relative* priority (to 0.1) of certain pages:
 
 ```
-static-sitemap-cli https://example.com -p **/privacy-policy/**,0.1 **/terms-of-service/**,0.1 > sm.xml
+sscli https://example.com -p **/privacy-policy/**,0.1 **/terms-of-service/**,0.1 > sm.xml
 ```
 
 
@@ -95,6 +109,10 @@ Add tests! :sweat_smile:
 
 
 ## Changelog
+
+**v0.1.1 - 2019-07-27:**
+* Bugfix: properly check rootDir before replacing.
+* Add new alias `sscli` because the original is quite a mouthful.
 
 **v0.1.0 - 2019-07-26:**
 * Initial release.

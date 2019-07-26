@@ -1,10 +1,11 @@
 {
   "name": "static-sitemap-cli",
   "description": "Simple CLI to pre-generate XML sitemaps for static sites locally.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Jason Lee <jason@zerodevx.com>",
   "bin": {
-    "static-sitemap-cli": "./bin/run"
+    "static-sitemap-cli": "./bin/run",
+    "sscli": "./bin/run"
   },
   "bugs": "https://github.com/zerodevx/static-sitemap-cli/issues",
   "dependencies": {

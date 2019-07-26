@@ -36,7 +36,7 @@ class StaticSitemapCliCommand extends Command {
           }
         }
       }
-      let url = files[a].replace(rootDir, '/');
+      let url = rootDir === './' ? files[a] : files[a].replace(rootDir, '/');
       if (!flags['no-clean']) {
         if (url.slice(-5) === '.html') {
           url = url.slice(0, -5);
@@ -86,7 +86,7 @@ StaticSitemapCliCommand.flags = {
   root: flags.string({
     char: 'r',
     description: 'root dir to start from',
-    default: '.'
+    default: './'
   }),
   match: flags.string({
     char: 'm',
