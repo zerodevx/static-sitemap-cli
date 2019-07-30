@@ -1,7 +1,7 @@
 {
   "name": "static-sitemap-cli",
   "description": "Simple CLI to pre-generate XML sitemaps for static sites locally.",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Jason Lee <jason@zerodevx.com>",
   "bin": {
     "static-sitemap-cli": "./bin/run",
@@ -12,8 +12,9 @@
     "@oclif/command": "^1.5.18",
     "@oclif/config": "^1.13.2",
     "@oclif/plugin-help": "^2.2.0",
-    "filehound": "^1.17.3",
-    "nanomatch": "^1.2.13",
+    "get-stdin": "^7.0.0",
+    "globby": "^10.0.1",
+    "minimatch": "^3.0.4",
     "sitemap": "^3.2.2"
   },
   "devDependencies": {},
