@@ -1,20 +1,30 @@
 const {Command, flags} = require('@oclif/command');
+const getStdin = require('get-stdin');
+const globby = require('globby');
+const minimatch = require('minimatch');
 const sitemap = require('sitemap');
-const filehound = require('filehound');
-const nm = require('nanomatch');
+
 
 class StaticSitemapCliCommand extends Command {
+
   async run() {
     const {argv, flags} = this.parse(StaticSitemapCliCommand);
 
-    const baseUrl = argv[0].slice(-1) === '/' ? argv[0].slice(0, -1) : argv[0];
-    const rootDir = flags.root.slice(-1) === '/' ? flags.root : flags.root + '/';
-
-    const files = filehound.create()
-      .paths(flags.root)
-      .ext(flags.match.split(','))
-      .discard(flags.ignore.split(','))
-      .findSync();
+    let baseUrl = await getStdin();
+    if (!baseUrl) {
+      if (!argv.length) {
+        this.error('you must include a BASEURL - type "sscli --help" for help.', { code: 'BASEURL_NOT_FOUND', exit: 1 });
+      }
+      baseUrl = argv[0];
+    }
+    baseUrl = baseUrl.slice(-1) === '/' ? baseUrl.slice(0, -1) : baseUrl;
+    let rootDir = flags.root || '';
+    if (rootDir.length) {
+      rootDir = rootDir.slice(-1) === '/' ? flags.root : flags.root + '/';
+    }
+    const globs = [...flags.match.map(g => `${rootDir}${g}`), ...flags.ignore.map(g => `!${rootDir}${g}`)];
+    const files = await globby(globs);
+    console.warn(`Found ${files.length} files!`);
 
     let urls = [];
     for (let a = 0; a < files.length; a++) {
@@ -24,19 +34,21 @@ class StaticSitemapCliCommand extends Command {
       };
       if (flags.priority) {
         for (let b = 0; b < flags.priority.length; b++) {
-          if (nm.isMatch(files[a], flags.priority[b].split(',')[0])) {
+          if (minimatch(files[a], flags.priority[b].split(',')[0])) {
             obj.priority = parseFloat(flags.priority[b].split(',')[1]);
+            break;
           }
         }
       }
       if (flags.changefreq) {
         for (let b = 0; b < flags.changefreq.length; b++) {
-          if (nm.isMatch(files[a], flags.changefreq[b].split(',')[0])) {
+          if (minimatch(files[a], flags.changefreq[b].split(',')[0])) {
             obj.changefreq = flags.changefreq[b].split(',')[1];
+            break;
           }
         }
       }
-      let url = rootDir === './' ? files[a] : files[a].replace(rootDir, '/');
+      let url = files[a].replace(rootDir, '/');
       if (!flags['no-clean']) {
         if (url.slice(-5) === '.html') {
           url = url.slice(0, -5);
@@ -64,19 +76,19 @@ class StaticSitemapCliCommand extends Command {
   }
 }
 
-StaticSitemapCliCommand.description = `static-sitemap-cli <BASEURL> <options>
+StaticSitemapCliCommand.description = `
 CLI to pre-generate XML sitemaps for static sites locally.
 
 At its most basic, just run from root of distribution:
 > static-sitemap-cli https://example.com > sitemap.xml
+Or:
+> sscli https://example.com > sitemap.xml
 This creates the file 'sitemap.xml' into your root dir.
-
-'static-sitemap-cli' by default outputs to 'stdout'.
-`;
+CLI by default outputs to 'stdout', and accepts 'stdin' as BASEURL.`;
 
 StaticSitemapCliCommand.args = [{
   name: 'baseUrl',
-  required: true,
+  required: false,
   description: 'Base URL that is prefixed to all location entries.\nFor example: https://example.com/',
 }];
 
@@ -85,18 +97,20 @@ StaticSitemapCliCommand.flags = {
   help: flags.help({char: 'h'}),
   root: flags.string({
     char: 'r',
-    description: 'root dir to start from',
-    default: './'
+    description: 'root directory to start from',
+    default: '',
   }),
   match: flags.string({
     char: 'm',
-    description: 'comma-separated list of extensions to match',
-    default: '.html'
+    multiple: true,
+    description: 'list of globs to match',
+    default: ['**/*.html'],
   }),
   ignore: flags.string({
     char: 'i',
-    description: 'comma-separated list of globs to ignore',
-    default: '404.html',
+    multiple: true,
+    description: 'list of globs to ignore',
+    default: ['404.html'],
   }),
   priority: flags.string({
     char: 'p',
@@ -106,7 +120,7 @@ StaticSitemapCliCommand.flags = {
   changefreq: flags.string({
     char: 'f',
     multiple: true,
-    description: 'comma-separated glob/changefreq pair; eg: foo/*.html,daily',
+    description: 'comma-separated glob/changefreq pair; eg: bar/*.html,daily',
   }),
   'no-clean': flags.boolean({
     char: 'n',
