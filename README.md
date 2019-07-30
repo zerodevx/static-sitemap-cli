@@ -1,3 +1,6 @@
+![npm](https://img.shields.io/npm/v/static-sitemap-cli)
+![npm](https://img.shields.io/npm/dw/static-sitemap-cli)
+
 # static-sitemap-cli
 
 Simple CLI to pre-generate XML sitemaps for static sites locally.
