@@ -1,7 +1,7 @@
 {
   "name": "static-sitemap-cli",
   "description": "Simple CLI to pre-generate XML sitemaps for static sites locally.",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "author": "Jason Lee <jason@zerodevx.com>",
   "bin": {
     "static-sitemap-cli": "./bin/run",
@@ -12,12 +12,18 @@
     "@oclif/command": "^1.5.18",
     "@oclif/config": "^1.13.2",
     "@oclif/plugin-help": "^2.2.0",
+    "fast-glob": "^3.0.4",
     "get-stdin": "^7.0.0",
-    "globby": "^10.0.1",
-    "minimatch": "^3.0.4",
-    "sitemap": "^3.2.2"
+    "js2xmlparser": "^4.0.0",
+    "micromatch": "^4.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@oclif/test": "^1.2.5",
+    "chai": "^4.2.0",
+    "eslint": "^6.1.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1"
+  },
   "engines": {
     "node": ">=8.0.0"
   },
@@ -25,7 +31,7 @@
     "/bin",
     "/src"
   ],
-  "homepage": "https://github.com/zerodevx/static-sitemap-cli",
+  "homepage": "https://npmjs.com/package/static-sitemap-cli",
   "keywords": [
     "XML",
     "sitemap-generator",
@@ -39,6 +45,7 @@
   },
   "repository": "zerodevx/static-sitemap-cli",
   "scripts": {
-    "test": "echo WIP! && exit 1"
+    "posttest": "eslint .",
+    "test": "nyc mocha --forbid-only \"test/**/*.test.js\""
   }
 }
