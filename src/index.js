@@ -1,9 +1,8 @@
 const {Command, flags} = require('@oclif/command');
 const getStdin = require('get-stdin');
-const globby = require('globby');
-const minimatch = require('minimatch');
-const sitemap = require('sitemap');
-
+const fg = require('fast-glob');
+const mm = require('micromatch');
+const parser = require('js2xmlparser');
 
 class StaticSitemapCliCommand extends Command {
 
@@ -13,65 +12,90 @@ class StaticSitemapCliCommand extends Command {
     let baseUrl = await getStdin();
     if (!baseUrl) {
       if (!argv.length) {
-        this.error('you must include a BASEURL - type "sscli --help" for help.', { code: 'BASEURL_NOT_FOUND', exit: 1 });
+        this.error('you must include a BASEURL - type "sscli --help" for help.', {
+          code: 'BASEURL_NOT_FOUND',
+          exit: 1
+        });
       }
       baseUrl = argv[0];
     }
-    baseUrl = baseUrl.slice(-1) === '/' ? baseUrl.slice(0, -1) : baseUrl;
-    let rootDir = flags.root || '';
-    if (rootDir.length) {
-      rootDir = rootDir.slice(-1) === '/' ? flags.root : flags.root + '/';
+
+    const addSlash = path => path.slice(-1) === '/' ? path : `${path}/`;
+    const getUrl = path => {
+      let url = baseUrl + path;
+      if (!flags['no-clean']) {
+        if (url.slice(-11) === '/index.html') {
+          url = url.slice(0, -11);
+        } else if (url.slice(-5) === '.html') {
+          url = url.slice(0, -5);
+        }
+      }
+      if (flags.slash) {
+        url = url + '/';
+      }
+      return url;
+    };
+
+    baseUrl = addSlash(baseUrl);
+
+    const files = await fg(flags.match, {
+      cwd: flags.root,
+      stats: true
+    });
+    if (flags.verbose) {
+      console.warn(`[static-sitemap-cli] found ${files.length} files!`);
     }
-    const globs = [...flags.match.map(g => `${rootDir}${g}`), ...flags.ignore.map(g => `!${rootDir}${g}`)];
-    const files = await globby(globs);
-    console.warn(`Found ${files.length} files!`);
+
+    if (flags.text) {
+      let out = '';
+      for (let a = 0; a < files.length; a++) {
+        out += `${getUrl(files[a].path)}
+`;
+      }
+      this.log(out);
+      return;
+    }
 
     let urls = [];
     for (let a = 0; a < files.length; a++) {
+      if (flags.verbose) {
+        console.warn(files[a].path);
+      }
       let obj = {
-        lastmodrealtime: true,
-        lastmodfile: files[a]
+        loc: getUrl(files[a].path),
+        lastmod: files[a].stats.mtime.toISOString()
       };
       if (flags.priority) {
         for (let b = 0; b < flags.priority.length; b++) {
-          if (minimatch(files[a], flags.priority[b].split(',')[0])) {
-            obj.priority = parseFloat(flags.priority[b].split(',')[1]);
-            break;
+          if (mm.isMatch(files[a].path, flags.priority[b].split('=')[0])) {
+            obj.priority = parseFloat(flags.priority[b].split('=')[1]);
           }
         }
       }
       if (flags.changefreq) {
         for (let b = 0; b < flags.changefreq.length; b++) {
-          if (minimatch(files[a], flags.changefreq[b].split(',')[0])) {
-            obj.changefreq = flags.changefreq[b].split(',')[1];
-            break;
+          if (mm.isMatch(files[a].path, flags.changefreq[b].split('=')[0])) {
+            obj.changefreq = flags.changefreq[b].split('=')[1];
           }
         }
       }
-      let url = files[a].replace(rootDir, '/');
-      if (!flags['no-clean']) {
-        if (url.slice(-5) === '.html') {
-          url = url.slice(0, -5);
-          if (url.slice(-5) === 'index') {
-            url = url.slice(0, -5);
-          }
-        }
-      }
-      if (flags.slash) {
-        url = url.slice(-1) === '/' ? url : url + '/';
-      } else {
-        url = url.slice(-1) === '/' ? url.slice(0, -1) : url;
-      }
-      obj.url = url;
       urls.push(obj);
     }
 
-    const sm = sitemap.createSitemap({
-      hostname: baseUrl,
-      urls: urls,
+    let sitemap = parser.parse('urlset', {
+      '@': {
+        xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'
+      },
+      url: [urls]
+    }, {
+      declaration: {
+        encoding: 'UTF-8'
+      },
+      format: {
+        doubleQuotes: true
+      }
     });
-
-    this.log(sm.toString());
+    this.log(sitemap);
 
   }
 }
@@ -80,11 +104,9 @@ StaticSitemapCliCommand.description = `
 CLI to pre-generate XML sitemaps for static sites locally.
 
 At its most basic, just run from root of distribution:
-> static-sitemap-cli https://example.com > sitemap.xml
-Or:
-> sscli https://example.com > sitemap.xml
-This creates the file 'sitemap.xml' into your root dir.
-CLI by default outputs to 'stdout', and accepts 'stdin' as BASEURL.`;
+$ sscli https://example.com > sitemap.xml
+
+CLI by default outputs to 'stdout'; BASEURL can be piped in via 'stdin'.`;
 
 StaticSitemapCliCommand.args = [{
   name: 'baseUrl',
@@ -93,34 +115,28 @@ StaticSitemapCliCommand.args = [{
 }];
 
 StaticSitemapCliCommand.flags = {
-  version: flags.version({char: 'v'}),
+  version: flags.version({char: 'V'}),
   help: flags.help({char: 'h'}),
   root: flags.string({
     char: 'r',
-    description: 'root directory to start from',
+    description: '[default: current] root working directory',
     default: '',
   }),
   match: flags.string({
     char: 'm',
     multiple: true,
-    description: 'list of globs to match',
-    default: ['**/*.html'],
-  }),
-  ignore: flags.string({
-    char: 'i',
-    multiple: true,
-    description: 'list of globs to ignore',
-    default: ['404.html'],
+    description: 'globs to match',
+    default: ['**/*.html', '!404.html'],
   }),
   priority: flags.string({
     char: 'p',
     multiple: true,
-    description: 'comma-separated glob/priority pair; eg: foo/*.html,0.1',
+    description: 'glob-priority pair [eg: foo/**=0.1]',
   }),
   changefreq: flags.string({
-    char: 'f',
+    char: 'c',
     multiple: true,
-    description: 'comma-separated glob/changefreq pair; eg: bar/*.html,daily',
+    description: 'glob-changefreq pair (eg: bar/**=daily)',
   }),
   'no-clean': flags.boolean({
     char: 'n',
@@ -133,6 +149,17 @@ StaticSitemapCliCommand.flags = {
     default: false,
     exclusive: ['no-clean'],
   }),
+  text: flags.boolean({
+    char: 't',
+    description: 'output as .TXT instead',
+    default: false,
+    exclusive: ['priority', 'changefreq'],
+  }),
+  verbose: flags.boolean({
+    char: 'v',
+    description: 'be more verbose',
+    default: false,
+  }),
 }
 
-module.exports = StaticSitemapCliCommand
+module.exports = StaticSitemapCliCommand;
