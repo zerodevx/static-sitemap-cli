@@ -15,8 +15,8 @@ describe('#index', () => {
   test
     .stdout()
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--text']))
-    .it('output text', ctx => {
-      expect(ctx.stdout).to.equal('https://example.com\n\n');
+    .it('output text correctly without double newlines', ctx => {
+      expect(ctx.stdout).to.equal('https://example.com\n');
     });
 
   test
