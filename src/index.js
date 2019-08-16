@@ -35,7 +35,6 @@ class StaticSitemapCliCommand extends Command {
       }
       return url;
     };
-
     baseUrl = addSlash(baseUrl);
 
     const files = await fg(flags.match, {
@@ -43,16 +42,16 @@ class StaticSitemapCliCommand extends Command {
       stats: true
     });
     if (flags.verbose) {
-      console.warn(`[static-sitemap-cli] found ${files.length} files!`);
+      console.warn('\x1b[36m%s\x1b[0m', `[static-sitemap-cli] found ${files.length} files!`);
     }
 
     if (flags.text) {
-      let out = '';
       for (let a = 0; a < files.length; a++) {
-        out += `${getUrl(files[a].path)}
-`;
+        if (flags.verbose) {
+          console.warn(files[a].path);
+        }
+        this.log(getUrl(files[a].path));
       }
-      this.log(out);
       return;
     }
 
