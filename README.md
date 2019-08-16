@@ -47,7 +47,7 @@ so that you can pipe it to do other cool stuff. CLI also allows you to pipe in B
 | Option | Long         | Description                                                     |
 |--------|--------------|-----------------------------------------------------------------|
 | -h     | --help       | show CLI help                                                   |
-| -v     | --version    | show CLI version                                                |
+| -V     | --version    | show CLI version                                                |
 | -r     | --root       | [default: current dir] root directory to start from             |
 | -m     | --match      | [default: **/*.html,!404.html] list of globs to match           |
 | -p     | --priority   | glob-priority pair (eg: foo/*.html=0.1)                         |
@@ -88,23 +88,23 @@ You can change the glob pattern matches to suit your use-case, like:
 
 #### Glob-* Pairs
 
-The `-p` and `-c` flags allow multiple entries and accept `glob-*` pairs as input. A `glob-*` pair is basically
-`<glob-pattern>=<value>`, where `=` separates the two. For example, a glob-frequency pair should be input as
+The `-p` and `-c` flags allow multiple entries and accept `glob-*` pairs as input. A `glob-*` pair is input as
+`<glob-pattern>=<value>`, where `=` is used as the separator. For example, a glob-frequency pair should be input as
 `events/**/*.html=daily`.
 
-Entries input later will override the earlier ones. So for example in this,
+Latter entries will override the former. So for example in
 
 `sscli https://example.com -f '**/*=weekly' -f 'events/**=daily'`
 
-all page entries will contain `<changefreq>weekly</changefreq>` while pages that match `event/**` will contain
+all URL entries will contain `<changefreq>weekly</changefreq>` while pages that match `event/**` will contain
 `<changefreq>daily</changefreq>`.
 
 
 #### Output as Text
 
-Sitemaps can be generated in a simple [text file](https://support.google.com/webmasters/answer/183668?hl=en) format as well,
+Sitemaps can be formatted as a simple [text file](https://support.google.com/webmasters/answer/183668?hl=en) as well,
 where each line contains exactly one URL. Pass the option `-t` to do so. In this case, `--priority` and `--changefreq`
-are redundant.
+are redundant and ignored.
 
 
 ## Examples
@@ -154,8 +154,11 @@ Run `npm run test`.
 
 ## Changelog
 
+**v1.0.1** - 2019-08-16:
+* Bugfix - empty line at EOF in text mode.
+
 **v1.0.0** - 2019-08-15:
-* **BREAKING:** `--ignore` is deprecated. Use `--matches` instead.
+* **BREAKING:** `--ignore` is deprecated. Use `--match` instead.
 * **BREAKING:** Glob-* pairs are no longer comma-seperated. Use `=` instead.
 * **BREAKING:** Logic for multiple glob-* pairs changed. Later pairs override the earlier ones now.
 * Major refactor of original codebase; discontinued usage of [globby](https://www.npmjs.com/package/globby) and [sitemap](https://www.npmjs.com/package/sitemap) in favour of [fast-glob](https://www.npmjs.com/package/fast-glob), [micromatch](https://www.npmjs.com/package/micromatch), and [js2xmlparser](https://www.npmjs.com/package/js2xmlparser).
