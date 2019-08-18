@@ -3,6 +3,7 @@ const getStdin = require('get-stdin');
 const fg = require('fast-glob');
 const mm = require('micromatch');
 const parser = require('js2xmlparser');
+const fs = require('fs');
 
 class StaticSitemapCliCommand extends Command {
 
@@ -94,7 +95,11 @@ class StaticSitemapCliCommand extends Command {
         doubleQuotes: true
       }
     });
-    this.log(sitemap);
+    if (flags.save) {
+      fs.writeFileSync(`${addSlash(flags.root)}sitemap.xml`, `${sitemap}\n`, 'utf-8');
+    } else {
+      this.log(sitemap);
+    }
 
   }
 }
@@ -118,8 +123,8 @@ StaticSitemapCliCommand.flags = {
   help: flags.help({char: 'h'}),
   root: flags.string({
     char: 'r',
-    description: '[default: current] root working directory',
-    default: '',
+    description: 'root working directory',
+    default: '.',
   }),
   match: flags.string({
     char: 'm',
@@ -143,7 +148,7 @@ StaticSitemapCliCommand.flags = {
     default: false,
   }),
   slash: flags.boolean({
-    char: 's',
+    char: 'l',
     description: 'add trailing slash to all URLs',
     default: false,
     exclusive: ['no-clean'],
@@ -153,6 +158,12 @@ StaticSitemapCliCommand.flags = {
     description: 'output as .TXT instead',
     default: false,
     exclusive: ['priority', 'changefreq'],
+  }),
+  save: flags.boolean({
+    char: 's',
+    description: 'save output directly to file <root>/sitemap.xml',
+    default: false,
+    exclusive: ['text'],
   }),
   verbose: flags.boolean({
     char: 'v',
