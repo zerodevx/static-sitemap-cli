@@ -1,5 +1,6 @@
 const {expect, test} = require('@oclif/test');
 const cmd = require('../src');
+const fs = require('fs');
 
 describe('#index', () => {
 
@@ -56,6 +57,14 @@ describe('#index', () => {
     .it('trailing slash', ctx => {
       expect(ctx.stdout).to.contain('https://example.com/</loc>');
       expect(ctx.stdout).to.contain('https://example.com/blog/mixed-1/</loc>');
+    });
+
+  test
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--save']))
+    .it('saves to sitemap.xml', () => {
+      let out = fs.readFileSync('test/test-site/about/sitemap.xml', 'utf-8');
+      expect(out).to.contain('<loc>https://example.com</loc>');
+      fs.unlinkSync('test/test-site/about/sitemap.xml');
     });
 
 
