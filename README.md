@@ -53,8 +53,9 @@ so that you can pipe it to do other cool stuff. CLI also allows you to pipe in B
 | -p     | --priority   | glob-priority pair (eg: foo/*.html=0.1)                         |
 | -f     | --changefreq | glob-changefreq pair (eg: foo/*.html=daily)                     |
 | -n     | --no-clean   | disable clean URLs                                              |
-| -s     | --slash      | add trailing slash to all URLs                                  |
+| -l     | --slash      | add trailing slash to all URLs                                  |
 | -t     | --text       | output as .TXT instead                                          |
+| -s     | --save       | save output directly to file `<root>/sitemap.xml`               |
 | -v     | --verbose    | be more verbose                                                 |
 
 
@@ -153,6 +154,10 @@ Run `npm run test`.
 
 
 ## Changelog
+
+**v1.1.0** - 2019-08-18:
+* **BREAKING**: Trailing slash alias `-s` renamed to `-l`. Sorry. :cry:
+* Add feature save directly to file `<rootDir>/sitemap.xml` instead of `stdout`.
 
 **v1.0.1** - 2019-08-16:
 * Bugfix - empty line at EOF in text mode.
