@@ -9,7 +9,7 @@
   },
   "bugs": "https://github.com/zerodevx/static-sitemap-cli/issues",
   "dependencies": {
-    "@oclif/command": "^1.5.18",
+    "@oclif/command": "^1.5.19",
     "@oclif/config": "^1.13.3",
     "@oclif/plugin-help": "^2.2.1",
     "fast-glob": "^3.0.4",
@@ -20,7 +20,7 @@
   "devDependencies": {
     "@oclif/test": "^1.2.5",
     "chai": "^4.2.0",
-    "eslint": "^6.1.0",
+    "eslint": "^6.4.0",
     "mocha": "^6.2.0",
     "nyc": "^14.1.1"
   },
