@@ -152,8 +152,33 @@ so every pages' default is 0.5. To change the *relative* priority of certain pag
 
 Run `npm run test`.
 
+## Implementation Notes
+
+#### To slash or not to slash
+
+First of all, search engines treat trailing slashes the same **only** for **root URLs**.
+
+```
+1. https://example.com
+2. https://example.com/
+3. https://example.com/about
+4. https://example.com/about/
+```
+
+(1) and (2) are **root URLs** and are treated exactly the same; while (3) and (4) are different and are treated as 2 unique addresses. This can be verified through devtools - where you'll notice there aren't `301 redirects` when (1) or (2) are entered into the URL address bar.
+
+Internally, browsers *append* the slash when a root URL is entered, but *hides* the slash when displayed in the URL address bar - for vanity purposes.
+
+To synchronise with browser behaviour, this [commit](https://github.com/zerodevx/static-sitemap-cli/commit/04e6b79abfe26ed55c7dec8287bccfac7400a01f) adds the trailing slash for **all** root URLs, even if the `--slash` flag is unused.
+
+Is this important? Not really - most of the time; but if you're using [Google AMP](https://amp.dev/), then yes, the trailing slash on all root URLs is important. Why? Because of how [AMP Cache](https://developers.google.com/amp/cache/) stores the root URL *always with* the trailing slash - so you can use your sitemap to perform cache-busting operations.
+
+
 
 ## Changelog
+
+**v1.2.0** - 2019-09-26:
+* Always add trailing slash to root urls. (ref: [implementation notes](#to-slash-or-not-to-slash))
 
 **v1.1.0** - 2019-08-18:
 * **BREAKING**: Trailing slash alias `-s` renamed to `-l`. Sorry. :cry:

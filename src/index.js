@@ -31,7 +31,7 @@ class StaticSitemapCliCommand extends Command {
           url = url.slice(0, -5);
         }
       }
-      if (flags.slash) {
+      if (flags.slash || url.split('/').length === 3) {
         url = url + '/';
       }
       return url;
