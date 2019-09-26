@@ -6,9 +6,13 @@ describe('#index', () => {
 
   test
     .stdout()
-    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about']))
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site']))
     .it('basic sitemap xml', ctx => {
-      expect(ctx.stdout).to.contain('<loc>https://example.com</loc>');
+      expect(ctx.stdout).to.contain('<loc>https://example.com/</loc>');
+      expect(ctx.stdout).to.contain('<loc>https://example.com/about</loc>');
+      expect(ctx.stdout).to.contain('<loc>https://example.com/blog</loc>');
+      expect(ctx.stdout).to.contain('<loc>https://example.com/blog/mixed-2</loc>');
+      expect(ctx.stdout).to.contain('<loc>https://example.com/blog/events/event-1</loc>');
       expect(ctx.stdout).to.contain('<?xml version="1.0" encoding="UTF-8"?>');
       expect(ctx.stdout).to.contain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
     });
@@ -17,7 +21,7 @@ describe('#index', () => {
     .stdout()
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--text']))
     .it('output text correctly without double newlines', ctx => {
-      expect(ctx.stdout).to.equal('https://example.com\n');
+      expect(ctx.stdout).to.equal('https://example.com/\n');
     });
 
   test
@@ -63,7 +67,7 @@ describe('#index', () => {
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--save']))
     .it('saves to sitemap.xml', () => {
       let out = fs.readFileSync('test/test-site/about/sitemap.xml', 'utf-8');
-      expect(out).to.contain('<loc>https://example.com</loc>');
+      expect(out).to.contain('<loc>https://example.com/</loc>');
       fs.unlinkSync('test/test-site/about/sitemap.xml');
     });
 
