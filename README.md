@@ -44,19 +44,20 @@ so that you can pipe it to do other cool stuff. CLI also allows you to pipe in B
 
 ### Options
 
-| Option | Long         | Description                                                     |
-|--------|--------------|-----------------------------------------------------------------|
-| -h     | --help       | show CLI help                                                   |
-| -V     | --version    | show CLI version                                                |
-| -r     | --root       | [default: current dir] root directory to start from             |
-| -m     | --match      | [default: **/*.html,!404.html] list of globs to match           |
-| -p     | --priority   | glob-priority pair (eg: foo/*.html=0.1)                         |
-| -f     | --changefreq | glob-changefreq pair (eg: foo/*.html=daily)                     |
-| -n     | --no-clean   | disable clean URLs                                              |
-| -l     | --slash      | add trailing slash to all URLs                                  |
-| -t     | --text       | output as .TXT instead                                          |
-| -s     | --save       | save output directly to file `<root>/sitemap.xml`               |
-| -v     | --verbose    | be more verbose                                                 |
+| Option | Long         | Description                                                                            |
+|--------|--------------|----------------------------------------------------------------------------------------|
+| -h     | --help       | show CLI help                                                                          |
+| -V     | --version    | show CLI version                                                                       |
+| -r     | --root       | [default: current dir] root directory to start from                                    |
+| -m     | --match      | [default: **/*.html,!404.html] list of globs to match                                  |
+| -p     | --priority   | glob-priority pair (eg: foo/*.html=0.1)                                                |
+| -f     | --changefreq | glob-changefreq pair (eg: foo/*.html=daily)                                            |
+| -n     | --no-clean   | disable clean URLs                                                                     |
+| -l     | --slash      | add trailing slash to all URLs                                                         |
+| -t     | --text       | output as .TXT instead                                                                 |
+| -s     | --save       | save output to XML and TXT files directly                                              |
+| -o     | --output-dir | specify the output dir; used together with --save; defaults to root working directory  |
+| -v     | --verbose    | be more verbose                                                                        |
 
 
 #### Clean URLs
@@ -141,6 +142,10 @@ so every pages' default is 0.5. To change the *relative* priority of certain pag
 
 `echo https://example.com | sscli > sm.xml`
 
+#### Save XML and TXT files into a specified location directly
+
+`sscli https://example.com -r 'src' -s -o 'dist'`
+
 
 
 ## To-do
@@ -176,6 +181,10 @@ Is this important? Not really - most of the time; but if you're using [Google AM
 
 
 ## Changelog
+
+**v1.3.0** - 2020-01-10:
+* `--save` now outputs BOTH sitemap.xml and sitemap.txt formats.
+* Update dependencies.
 
 **v1.2.0** - 2019-09-26:
 * Always add trailing slash to root urls. (ref: [implementation notes](#to-slash-or-not-to-slash))
