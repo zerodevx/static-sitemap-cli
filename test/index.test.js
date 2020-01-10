@@ -26,6 +26,13 @@ describe('#index', () => {
 
   test
     .stdout()
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site', '--match', 'about/*.html', '--text']))
+    .it('matches only what was specified', ctx => {
+      expect(ctx.stdout).to.equal('https://example.com/about\n');
+    });
+
+  test
+    .stdout()
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site', '--priority', 'about/index.html=0.1']))
     .it('priority', ctx => {
       expect(ctx.stdout).to.contain('<priority>0.1</priority>');
