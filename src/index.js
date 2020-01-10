@@ -22,6 +22,8 @@ class StaticSitemapCliCommand extends Command {
     }
 
     const addSlash = path => path.slice(-1) === '/' ? path : `${path}/`;
+    baseUrl = addSlash(baseUrl);
+
     const getUrl = path => {
       let url = baseUrl + path;
       if (!flags['no-clean']) {
@@ -36,31 +38,37 @@ class StaticSitemapCliCommand extends Command {
       }
       return url;
     };
-    baseUrl = addSlash(baseUrl);
 
     const files = await fg(flags.match, {
       cwd: flags.root,
       stats: true
     });
+    if (files.length === 0) {
+      this.error('[static-sitemap-cli] no file matches found!', {
+        code: 'NO_MATCHES_FOUND',
+        exit: 1
+      });
+    }
     if (flags.verbose) {
       console.warn('\x1b[36m%s\x1b[0m', `[static-sitemap-cli] found ${files.length} files!`);
+      for (let a = 0; a < files.length - 1; a++) {
+        console.warn('\x1b[36m%s\x1b[0m', `[static-sitemap-cli] -${files[a].path}`);
+      }
     }
 
+    let sitemapText = '';
+    for (let a = 0; a < files.length - 1; a++) {
+      sitemapText += getUrl(files[a].path) + '\n';
+    }
+    sitemapText += getUrl(files[files.length - 1].path);
+
     if (flags.text) {
-      for (let a = 0; a < files.length; a++) {
-        if (flags.verbose) {
-          console.warn(files[a].path);
-        }
-        this.log(getUrl(files[a].path));
-      }
+      this.log(sitemapText);
       return;
     }
 
     let urls = [];
     for (let a = 0; a < files.length; a++) {
-      if (flags.verbose) {
-        console.warn(files[a].path);
-      }
       let obj = {
         loc: getUrl(files[a].path),
         lastmod: files[a].stats.mtime.toISOString()
@@ -95,8 +103,11 @@ class StaticSitemapCliCommand extends Command {
         doubleQuotes: true
       }
     });
+
     if (flags.save) {
-      fs.writeFileSync(`${addSlash(flags.root)}sitemap.xml`, `${sitemap}\n`, 'utf-8');
+      let outputDir = flags['output-dir'] || flags.root;
+      fs.writeFileSync(`${addSlash(outputDir)}sitemap.xml`, `${sitemap}\n`, 'utf-8');
+      fs.writeFileSync(`${addSlash(outputDir)}sitemap.txt`, `${sitemapText}\n`, 'utf-8');
     } else {
       this.log(sitemap);
     }
@@ -161,9 +172,14 @@ StaticSitemapCliCommand.flags = {
   }),
   save: flags.boolean({
     char: 's',
-    description: 'save output directly to file <root>/sitemap.xml',
+    description: 'save output to XML and TXT files directly',
     default: false,
     exclusive: ['text'],
+  }),
+  'output-dir': flags.string({
+    char: 'o',
+    description: 'specify the output dir; used together with --save; defaults to root working directory',
+    dependsOn: ['save'],
   }),
   verbose: flags.boolean({
     char: 'v',
