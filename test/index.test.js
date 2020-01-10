@@ -26,6 +26,13 @@ describe('#index', () => {
 
   test
     .stdout()
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site', '--match', 'about/*.html', '--text']))
+    .it('matches only what was specified', ctx => {
+      expect(ctx.stdout).to.equal('https://example.com/about\n');
+    });
+
+  test
+    .stdout()
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site', '--priority', 'about/index.html=0.1']))
     .it('priority', ctx => {
       expect(ctx.stdout).to.contain('<priority>0.1</priority>');
@@ -66,10 +73,20 @@ describe('#index', () => {
   test
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--save']))
     .it('saves to sitemap.xml', () => {
-      let out = fs.readFileSync('test/test-site/about/sitemap.xml', 'utf-8');
-      expect(out).to.contain('<loc>https://example.com/</loc>');
+      let xml = fs.readFileSync('test/test-site/about/sitemap.xml', 'utf-8');
+      expect(xml).to.contain('<loc>https://example.com/</loc>');
       fs.unlinkSync('test/test-site/about/sitemap.xml');
+      fs.unlinkSync('test/test-site/about/sitemap.txt');
     });
+
+    test
+      .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--save', '--output-dir', 'test/test-site']))
+      .it('saves to sitemap.txt and output-dir works', () => {
+        let txt = fs.readFileSync('test/test-site/sitemap.txt', 'utf-8');
+        expect(txt).to.equal('https://example.com/\n');
+        fs.unlinkSync('test/test-site/sitemap.xml');
+        fs.unlinkSync('test/test-site/sitemap.txt');
+      });
 
 
   /*
