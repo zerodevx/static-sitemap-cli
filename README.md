@@ -51,7 +51,7 @@ so that you can pipe it to do other cool stuff. CLI also allows you to pipe in B
 | -r     | --root       | [default: current dir] root directory to start from                                    |
 | -m     | --match      | [default: **/*.html,!404.html] list of globs to match                                  |
 | -p     | --priority   | glob-priority pair (eg: foo/*.html=0.1)                                                |
-| -f     | --changefreq | glob-changefreq pair (eg: foo/*.html=daily)                                            |
+| -c     | --changefreq | glob-changefreq pair (eg: foo/*.html=daily)                                            |
 | -n     | --no-clean   | disable clean URLs                                                                     |
 | -l     | --slash      | add trailing slash to all URLs                                                         |
 | -t     | --text       | output as .TXT instead                                                                 |
@@ -96,7 +96,7 @@ The `-p` and `-c` flags allow multiple entries and accept `glob-*` pairs as inpu
 
 Latter entries will override the former. So for example in
 
-`sscli https://example.com -f '**/*=weekly' -f 'events/**=daily'`
+`sscli https://example.com -c '**/*=weekly' -c 'events/**=daily'`
 
 all URL entries will contain `<changefreq>weekly</changefreq>` while pages that match `event/**` will contain
 `<changefreq>daily</changefreq>`.
@@ -135,7 +135,7 @@ so every pages' default is 0.5. To change the *relative* priority of certain pag
 
 #### Set changefreq of all pages to weekly, and some to daily
 
-`sscli https://example.com -f '**/*=weekly' -f 'events/**=daily' > sm.xml`
+`sscli https://example.com -c '**/*=weekly' -c 'events/**=daily' > sm.xml`
 
 
 #### Pipe in the base URL
