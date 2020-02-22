@@ -47,6 +47,13 @@ describe('#index', () => {
 
   test
     .stdout()
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site', '-c', 'about/index.html=daily']))
+    .it('changefreq', ctx => {
+      expect(ctx.stdout).to.contain('<changefreq>daily</changefreq>');
+    });
+
+  test
+    .stdout()
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site']))
     .it('clean urls', ctx => {
       expect(ctx.stdout).to.not.contain('.html');
