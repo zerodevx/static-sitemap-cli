@@ -182,6 +182,13 @@ Is this important? Not really - most of the time; but if you're using [Google AM
 
 ## Changelog
 
+**v1.3.2** - 2020-02-22:
+* Update the changelog.
+* Update dependencies.
+
+**v1.3.1** - 2020-02-22:
+* Fixes [#7](https://github.com/zerodevx/static-sitemap-cli/pull/7) typo in README re `--changefreq` alias. (Thanks [@joshtaylor](https://github.com/joshtaylor)!)
+
 **v1.3.0** - 2020-01-10:
 * `--save` now outputs BOTH sitemap.xml and sitemap.txt formats.
 * Update dependencies.
