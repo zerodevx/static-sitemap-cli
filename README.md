@@ -182,6 +182,9 @@ Is this important? Not really - most of the time; but if you're using [Google AM
 
 ## Changelog
 
+**v1.3.3** - 2020-07-07:
+* Update dependencies.
+
 **v1.3.2** - 2020-02-22:
 * Update the changelog.
 * Update dependencies.
