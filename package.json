@@ -22,7 +22,8 @@
     "chai": "^4.2.0",
     "eslint": "^7.4.0",
     "mocha": "^8.0.1",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "prettier": "^2.0.5"
   },
   "engines": {
     "node": ">=8.0.0"
@@ -45,7 +46,8 @@
   },
   "repository": "zerodevx/static-sitemap-cli",
   "scripts": {
-    "posttest": "eslint .",
+    "pretest": "eslint . && npm run format",
+    "format": "prettier --write \"src/**/*.js\"",
     "test": "nyc mocha --forbid-only \"test/**/*.test.js\""
   }
 }
