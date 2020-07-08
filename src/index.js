@@ -73,6 +73,32 @@ class StaticSitemapCliCommand extends Command {
         loc: getUrl(files[a].path),
         lastmod: files[a].stats.mtime.toISOString(),
       };
+
+      if (flags['follow-noindex']) {
+        const fileContent = fs.readFileSync(flags.root + '/' + files[a].path);
+
+        let noindex = false;
+
+        const parsedHtml = new htmlparser.Parser({
+          onopentag(name, attrs) {
+            if (name === 'meta' && attrs.name === 'robots' && attrs.content === 'noindex') {
+              noindex = true;
+              parsedHtml.end();
+            }
+          },
+        });
+
+        parsedHtml.write(fileContent);
+        parsedHtml.end();
+
+        // No index meta tag
+
+        if (noindex) {
+          console.log('No index!');
+          continue;
+        }
+      }
+
       if (flags.priority) {
         for (let b = 0; b < flags.priority.length; b++) {
           if (mm.isMatch(files[a].path, flags.priority[b].split('=')[0])) {
@@ -169,6 +195,10 @@ StaticSitemapCliCommand.flags = {
     description: 'add trailing slash to all URLs',
     default: false,
     exclusive: ['no-clean'],
+  }),
+  'follow-noindex': flags.boolean({
+    description: 'removes pages with noindex meta tag from sitemap (up to 5x slower due to reading and parsing every HTML file)',
+    default: false,
   }),
   text: flags.boolean({
     char: 't',
