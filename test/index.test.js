@@ -94,6 +94,21 @@ describe('#index', () => {
       fs.unlinkSync('test/test-site/sitemap.txt');
     });
 
+  test
+    .stdout()
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site', '--follow-noindex']))
+    .it('ignores files with robots noindex meta tag', (ctx) => {
+      expect(ctx.stdout).to.not.contain('<loc>https://example.com/noindex/not-indexed</loc>');
+      expect(ctx.stdout).to.not.contain('<loc>https://example.com/noindex/not-indexed-2</loc>');
+    });
+
+  test
+    .stdout()
+    .do(() => cmd.run(['https://example.com', '--root', 'test/test-site']))
+    .it('does NOT ignore files with robots noindex meta tag when overridden', (ctx) => {
+      expect(ctx.stdout).to.not.contain('<loc>https://example.com/noindex/not-indexed/</loc>');
+      expect(ctx.stdout).to.not.contain('<loc>https://example.com/noindex/not-indexed-2/</loc>');
+    });
 
   /*
   test
