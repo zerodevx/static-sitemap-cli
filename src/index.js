@@ -94,7 +94,6 @@ class StaticSitemapCliCommand extends Command {
         // No index meta tag
 
         if (noindex) {
-          console.log('No index!');
           continue;
         }
       }
