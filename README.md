@@ -164,6 +164,10 @@ Is this important? Not really - most of the time; but if you're using [Google AM
 
 ## Changelog
 
+**v1.4.0** - 2020-07-09:
+
+- Add `noindex` meta tag detection feature per [#9](https://github.com/zerodevx/static-sitemap-cli/issues/9). (Thanks [@davwheat](https://github.com/davwheat)!)
+
 **v1.3.3** - 2020-07-07:
 
 - Update dependencies.
