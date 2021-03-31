@@ -162,7 +162,15 @@ To synchronise with browser behaviour, this [commit](https://github.com/zerodevx
 
 Is this important? Not really - most of the time; but if you're using [Google AMP](https://amp.dev/), then yes, the trailing slash on all root URLs is important. Why? Because of how [AMP Cache](https://developers.google.com/amp/cache/) stores the root URL _always with_ the trailing slash - so you can use your sitemap to perform cache-busting operations.
 
+## License
+
+ISC
+
 ## Changelog
+
+**v1.4.2** - 2021-03-31:
+
+- Update dependencies.
 
 **v1.4.1** - 2020-09-30:
 
