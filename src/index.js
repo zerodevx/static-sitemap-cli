@@ -45,7 +45,7 @@ class StaticSitemapCliCommand extends Command {
 }
 
 StaticSitemapCliCommand.description = `
-CLI to pre-generate XML sitemaps for static sites locally.
+CLI to generate XML sitemaps for static sites from local filesystem.
 
 At its most basic, just run from root of distribution:
 $ sscli https://example.com > sitemap.xml
@@ -56,7 +56,7 @@ StaticSitemapCliCommand.args = [
   {
     name: 'baseUrl',
     required: false,
-    description: 'Base URL that is prefixed to all location entries.\nFor example: https://example.com/'
+    description: 'Base URL that is prefixed to all sitemap items.\nFor example: https://example.com/'
   }
 ]
 
@@ -71,18 +71,18 @@ StaticSitemapCliCommand.flags = {
   match: flags.string({
     char: 'm',
     multiple: true,
-    description: 'globs to match',
+    description: 'micromatch globs to match',
     default: ['**/*.html', '!404.html']
   }),
   priority: flags.string({
     char: 'p',
     multiple: true,
-    description: 'glob-priority pair [eg: foo/**=0.1]'
+    description: '`=`-separated glob-priority pair [eg: foo/**=0.1]'
   }),
   changefreq: flags.string({
     char: 'c',
     multiple: true,
-    description: 'glob-changefreq pair (eg: bar/**=daily)'
+    description: '`=`-separated glob-changefreq pair [eg: bar/**=daily]'
   }),
   'no-clean': flags.boolean({
     char: 'n',
@@ -101,13 +101,13 @@ StaticSitemapCliCommand.flags = {
   }),
   text: flags.boolean({
     char: 't',
-    description: 'output as .TXT instead',
+    description: 'output as text instead of XML',
     default: false,
     exclusive: ['priority', 'changefreq']
   }),
   save: flags.boolean({
     char: 's',
-    description: 'save output to XML and TXT files directly',
+    description: 'write both XML and TXT outputs to file directly instead of `stdout`',
     default: false,
     exclusive: ['text']
   }),
