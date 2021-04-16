@@ -1,10 +1,7 @@
+const getSitemap = require('./sitemap')
 const { Command, flags } = require('@oclif/command')
 const getStdin = require('get-stdin')
-const fg = require('fast-glob')
-const mm = require('micromatch')
-const parser = require('js2xmlparser')
 const fs = require('fs')
-const htmlparser = require('htmlparser2')
 
 class StaticSitemapCliCommand extends Command {
   async run () {
@@ -20,124 +17,27 @@ class StaticSitemapCliCommand extends Command {
       }
       baseUrl = argv[0]
     }
-
     const addSlash = (path) => (path.slice(-1) === '/' ? path : `${path}/`)
     baseUrl = addSlash(baseUrl)
 
-    const getUrl = (path) => {
-      let url = baseUrl + path
-      if (!flags['no-clean']) {
-        if (url.slice(-11) === '/index.html') {
-          url = url.slice(0, -11)
-        } else if (url.slice(-5) === '.html') {
-          url = url.slice(0, -5)
-        }
-      }
-      if (flags.slash || url.split('/').length === 3) {
-        url = url + '/'
-      }
-      return url
-    }
-
-    const files = await fg(flags.match, {
-      cwd: flags.root,
-      stats: true
-    })
-    if (files.length === 0) {
-      this.error('[static-sitemap-cli] no file matches found!', {
-        code: 'NO_MATCHES_FOUND',
-        exit: 1
-      })
-    }
-    if (flags.verbose) {
-      console.warn('\x1b[36m%s\x1b[0m', `[static-sitemap-cli] found ${files.length} files!`)
-      for (let a = 0; a < files.length - 1; a++) {
-        console.warn('\x1b[36m%s\x1b[0m', `[static-sitemap-cli] -${files[a].path}`)
-      }
-    }
-
-    let sitemapText = ''
-    for (let a = 0; a < files.length - 1; a++) {
-      sitemapText += getUrl(files[a].path) + '\n'
-    }
-    sitemapText += getUrl(files[files.length - 1].path)
-
-    if (flags.text) {
-      this.log(sitemapText)
-      return
-    }
-
-    const urls = []
-    for (let a = 0; a < files.length; a++) {
-      const obj = {
-        loc: getUrl(files[a].path),
-        lastmod: files[a].stats.mtime.toISOString()
-      }
-
-      if (flags['follow-noindex']) {
-        const fileContent = fs.readFileSync(flags.root + '/' + files[a].path)
-
-        let noindex = false
-
-        const parsedHtml = new htmlparser.Parser({
-          onopentag (name, attrs) {
-            if (name === 'meta' && attrs.name === 'robots' && attrs.content === 'noindex') {
-              noindex = true
-              parsedHtml.end()
-            }
-          }
+    let sitemap
+    try {
+      sitemap = await getSitemap(baseUrl, flags)
+    } catch (err) {
+      if (err.message === 'NO_MATCHES_FOUND') {
+        this.error('[static-sitemap-cli] No file matches found!', {
+          code: 'NO_MATCHES_FOUND',
+          exit: 1
         })
-
-        parsedHtml.write(fileContent)
-        parsedHtml.end()
-
-        // No index meta tag
-
-        if (noindex) {
-          continue
-        }
+      } else {
+        this.error(err.toString(), { exit: 1 })
       }
-
-      if (flags.priority) {
-        for (let b = 0; b < flags.priority.length; b++) {
-          if (mm.isMatch(files[a].path, flags.priority[b].split('=')[0])) {
-            obj.priority = parseFloat(flags.priority[b].split('=')[1])
-          }
-        }
-      }
-
-      if (flags.changefreq) {
-        for (let b = 0; b < flags.changefreq.length; b++) {
-          if (mm.isMatch(files[a].path, flags.changefreq[b].split('=')[0])) {
-            obj.changefreq = flags.changefreq[b].split('=')[1]
-          }
-        }
-      }
-      urls.push(obj)
     }
-
-    const sitemap = parser.parse(
-      'urlset',
-      {
-        '@': {
-          xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9'
-        },
-        url: [urls]
-      },
-      {
-        declaration: {
-          encoding: 'UTF-8'
-        },
-        format: {
-          doubleQuotes: true
-        }
-      }
-    )
 
     if (flags.save) {
       const outputDir = flags['output-dir'] || flags.root
-      fs.writeFileSync(`${addSlash(outputDir)}sitemap.xml`, `${sitemap}\n`, 'utf-8')
-      fs.writeFileSync(`${addSlash(outputDir)}sitemap.txt`, `${sitemapText}\n`, 'utf-8')
+      fs.writeFileSync(`${addSlash(outputDir)}sitemap.xml`, `${sitemap.xml}\n`, 'utf-8')
+      fs.writeFileSync(`${addSlash(outputDir)}sitemap.txt`, `${sitemap.txt}\n`, 'utf-8')
     } else {
       this.log(sitemap)
     }
