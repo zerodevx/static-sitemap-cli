@@ -1,9 +1,8 @@
+tmp/
+scratch.js
 
 # Created by https://www.gitignore.io/api/macos,node,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=macos,node,visualstudiocode
-
-/dist
-/tmp
 
 ### macOS ###
 # General
