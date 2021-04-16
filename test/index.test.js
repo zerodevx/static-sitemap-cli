@@ -80,9 +80,11 @@ describe('#index', () => {
 
   test
     .do(() => cmd.run(['https://example.com', '--root', 'test/test-site/about', '--save']))
-    .it('saves to sitemap.xml', () => {
+    .it('saves to sitemap.xml and sitemap.txt', () => {
       const xml = fs.readFileSync('test/test-site/about/sitemap.xml', 'utf-8')
       expect(xml).to.contain('<loc>https://example.com/</loc>')
+      const txt = fs.readFileSync('test/test-site/about/sitemap.txt', 'utf-8')
+      expect(txt).to.contain('https://example.com/\n')
       fs.unlinkSync('test/test-site/about/sitemap.xml')
       fs.unlinkSync('test/test-site/about/sitemap.txt')
     })
@@ -110,6 +112,20 @@ describe('#index', () => {
     .it('does NOT ignore files with robots noindex meta tag when overridden', (ctx) => {
       expect(ctx.stdout).to.not.contain('<loc>https://example.com/noindex/not-indexed/</loc>')
       expect(ctx.stdout).to.not.contain('<loc>https://example.com/noindex/not-indexed-2/</loc>')
+    })
+
+  test
+    .stdout()
+    .do(() => cmd.run(['https://x.com/foo', '--root', 'test/test-site/blog', '--text']))
+    .it('does not force add trailing slash if baseUrl is not domain root', (ctx) => {
+      expect(ctx.stdout).to.contain('https://x.com/foo\n')
+    })
+
+  test
+    .stdout()
+    .do(() => cmd.run(['https://x.com', '--root', 'test/test-site/blog', '--text']))
+    .it('force adds trailing slash if baseUrl is a domain root', (ctx) => {
+      expect(ctx.stdout).to.contain('https://x.com/\n')
     })
 
   /*
