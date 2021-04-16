@@ -3,52 +3,55 @@
   "description": "Simple CLI to pre-generate XML sitemaps for static sites locally.",
   "version": "1.4.2",
   "author": "Jason Lee <jason@zerodevx.com>",
+  "main": "src/index.js",
   "bin": {
     "static-sitemap-cli": "./bin/run",
     "sscli": "./bin/run"
   },
-  "bugs": "https://github.com/zerodevx/static-sitemap-cli/issues",
+  "scripts": {
+    "lint": "standard | snazzy",
+    "pretest": "npm run lint",
+    "test": "nyc mocha --forbid-only \"test/**/*.test.js\""
+  },
   "dependencies": {
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.2",
     "fast-glob": "^3.2.5",
     "get-stdin": "^8.0.0",
-    "htmlparser2": "^6.0.1",
+    "htmlparser2": "^6.1.0",
     "js2xmlparser": "^4.0.1",
-    "micromatch": "^4.0.2"
+    "micromatch": "^4.0.4"
   },
   "devDependencies": {
     "@oclif/test": "^1.2.8",
     "chai": "^4.3.4",
-    "eslint": "^7.23.0",
     "mocha": "^8.3.2",
     "nyc": "^15.1.0",
-    "prettier": "^2.2.1"
+    "snazzy": "^9.0.0",
+    "standard": "^16.0.3"
   },
   "engines": {
     "node": ">=8.0.0"
+  },
+  "oclif": {
+    "bin": "static-sitemap-cli"
   },
   "files": [
     "/bin",
     "/src"
   ],
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zerodevx/static-sitemap-cli.git"
+  },
+  "bugs": "https://github.com/zerodevx/static-sitemap-cli/issues",
   "homepage": "https://npmjs.com/package/static-sitemap-cli",
   "keywords": [
     "XML",
     "sitemap-generator",
     "static-site",
     "CLI"
-  ],
-  "license": "ISC",
-  "main": "src/index.js",
-  "oclif": {
-    "bin": "static-sitemap-cli"
-  },
-  "repository": "zerodevx/static-sitemap-cli",
-  "scripts": {
-    "pretest": "eslint . && npm run format",
-    "format": "prettier --write \"src/**/*.js\"",
-    "test": "nyc mocha --forbid-only \"test/**/*.test.js\""
-  }
+  ]
 }
