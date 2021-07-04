@@ -1,7 +1,7 @@
 {
   "name": "static-sitemap-cli",
   "description": "CLI to generate XML sitemaps for static sites from local filesystem",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "author": "Jason Lee <jason@zerodevx.com>",
   "main": "src/sitemap.js",
   "bin": {
@@ -17,7 +17,7 @@
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.2",
-    "fast-glob": "^3.2.5",
+    "fast-glob": "^3.2.6",
     "get-stdin": "^8.0.0",
     "htmlparser2": "^6.1.0",
     "js2xmlparser": "^4.0.1",
@@ -26,7 +26,7 @@
   "devDependencies": {
     "@oclif/test": "^1.2.8",
     "chai": "^4.3.4",
-    "mocha": "^8.3.2",
+    "mocha": "^9.0.2",
     "nyc": "^15.1.0",
     "snazzy": "^9.0.0",
     "standard": "^16.0.3"
