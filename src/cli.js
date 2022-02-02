@@ -1,12 +1,15 @@
+#!/usr/bin/env node
+
 import { program, Option } from 'commander'
 import { cosmiconfig } from 'cosmiconfig'
-import { promises as fs } from 'fs'
+import { promises as fs } from 'node:fs'
+import { log, run } from './index.js'
 
 const { version } = JSON.parse(
   await fs.readFile(new URL('../package.json', import.meta.url), 'utf8')
 )
 
-const config = (await cosmiconfig('sscli').search()) || { results: {} }
+const conf = (await cosmiconfig('sscli').search()) || { config: {} }
 
 program
   .name('sscli')
@@ -14,7 +17,7 @@ program
   .option('-b, --base <url>', 'base URL (required)')
   .option('-r, --root <dir>', 'root working directory', '.')
   .option('-m, --match <glob...>', 'micromatch globs to match', ['**/*.html', '!404.html'])
-  .option('-f, --frequency <glob,frequency...>', 'comma-separated glob change-frequency pairs')
+  .option('-f, --changefreq <glob,changefreq...>', 'comma-separated glob change-frequency pairs')
   .option('-p, --priority <glob,priority...>', 'comma-separated glob priority pairs')
   .addOption(
     new Option('-x, --exclude <regex...>', 'exclude file if contents matches regex').default(
@@ -24,8 +27,8 @@ program
   )
   .option('-X, --no-exclude', 'do not search within files')
   .option('-v, --verbose', 'be more verbose')
-  .option('--slash', 'add trailing slash to all URLs')
   .option('--no-clean', 'disable clean URLs')
+  .option('--slash', 'add trailing slash to all URLs')
   .addOption(
     new Option('--format <format>', 'sitemap format')
       .choices(['xml', 'txt', 'both'])
@@ -33,15 +36,52 @@ program
   )
   .option('--stdout', 'output sitemap to stdout instead')
   .version(version)
+  .addOption(new Option('--debug').hideHelp())
   .parse()
 
-const opts = { ...program.opts(), ...config.results }
+const opts = { ...program.opts(), ...conf.config }
 
-// Validate opts
-function parseFrequency(val) {
-  const frequencies = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never']
+if (opts.verbose && conf.filepath) {
+  log(`[sscli] found config in '${conf.filepath}'`)
 }
 
-if (!opts.base) program.error(`error: required option '-b, --base <url>' not specified`)
+if (!opts.base) {
+  program.error(`Error: required option '-b, --base <url>' not specified`)
+}
 
-console.log(opts)
+try {
+  opts.base = new URL(opts.base).href
+} catch {
+  program.error('Error: base is not a valid URL')
+}
+
+if (opts.changefreq && opts.changefreq.length) {
+  const frequencies = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never']
+  for (let i of opts.changefreq) {
+    i = i.split(',')
+    if (i.length !== 2 || !frequencies.includes(i[1])) {
+      program.error('Error: glob change-frequency pairs malformed')
+    }
+  }
+}
+
+if (opts.priority && opts.priority.length) {
+  const err = () => program.error('Error: glob priority pairs malformed')
+  for (let i of opts.priority) {
+    i = i.split(',')
+    if (i.length !== 2) err()
+    const f = parseFloat(i[1])
+    if (isNaN(f) || f < 0 || f > 1) err()
+  }
+}
+
+if (opts.debug) {
+  console.warn(opts)
+  process.exit()
+}
+
+try {
+  run(opts)
+} catch (err) {
+  program.error(err)
+}
