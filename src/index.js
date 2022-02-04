@@ -1,73 +1,76 @@
 import fastglob from 'fast-glob'
 import micromatch from 'micromatch'
-import parser from 'js2xmlparser'
+import js2xmlparser from 'js2xmlparser'
+import { WritableStream } from 'htmlparser2/lib/WritableStream.js'
+import pool from 'tiny-async-pool'
 import nodepath from 'node:path'
-import { promises as fs } from 'node:fs'
+import { createReadStream, promises as fs } from 'node:fs'
 
 function log(msg) {
   console.warn('\x1b[36m%s\x1b[0m', `[sscli] ${msg}`)
 }
 
-async function generateUrls({
-  base,
-  root,
-  match,
-  changefreq,
-  priority,
-  exclude,
-  verbose,
-  clean,
-  slash
-}) {
+async function getFiles({ root, match, verbose }) {
   const files = await fastglob(match, { cwd: root, stats: true })
   if (!files.length) {
-    throw new Error('no matches found')
+    throw new Error('NO_MATCHES')
   }
   if (verbose) {
     log(`matched ${files.length} files`)
     for (const f of files) log(`~ ${f.path}`)
   }
-  return files.reduce(async (acc, f) => {
-    if (exclude && exclude.length) {
-      for (const e of exclude) {
-        const str = await fs.readFile(nodepath.join(root, f.path), 'utf-8')
-        if (str.match(new RegExp(e))) {
-          if (verbose) log(`excluding: ${f.path}`)
-          return await acc
+  return files
+}
+
+function detectNoindex(path) {
+  return new Promise((resolve) => {
+    const parser = new WritableStream({
+      onopentag(tag, { name, content }) {
+        if (tag === 'meta' && name === 'robots' && content.includes('noindex')) {
+          parser.end()
+          resolve(true)
+        }
+      },
+      onclosetag(tag) {
+        if (tag === 'head') {
+          parser.end()
+          resolve()
         }
       }
+    })
+    const filestream = createReadStream(path)
+    filestream.pipe(parser).on('finish', resolve)
+  })
+}
+
+async function generateUrl(
+  file,
+  { root, base, changefreq, priority, verbose, exclude, clean, slash }
+) {
+  if (exclude) {
+    if (await detectNoindex(nodepath.join(root, file.path))) {
+      if (verbose) log(`noindex: ${file.path}`)
+      return
     }
-    let url = base + f.path.split(nodepath.sep).join('/')
-    if (clean) {
-      if (url.slice(-11) === '/index.html') {
-        url = url.slice(0, -11)
-      } else if (url.slice(-5) === '.html') {
-        url = url.slice(0, -5)
-      }
-      if (slash || url.split('/').length === 3) {
-        url += '/'
-      }
+  }
+  let url = base + file.path.split(nodepath.sep).join('/')
+  if (clean) {
+    if (url.slice(-11) === '/index.html') url = url.slice(0, -11)
+    else if (url.slice(-5) === '.html') url = url.slice(0, -5)
+    if (slash || url.split('/').length === 3) url += '/'
+  }
+  const check = (pairs, tagname) => {
+    for (let a = pairs.length - 1; a >= 0; a--) {
+      const p = pairs[a].split(',')
+      if (micromatch.isMatch(file.path, p[0])) return { [tagname]: p[1] }
     }
-    const part = {
-      loc: url,
-      lastmod: f.stats.mtime.toISOString()
-    }
-    const check = (pairs) => {
-      for (let a = pairs.length - 1; a >= 0; a--) {
-        const p = pairs[a].split(',')
-        if (micromatch.isMatch(f.path, p[0])) return p[1]
-      }
-    }
-    if (changefreq && changefreq.length) {
-      const val = check(changefreq)
-      if (val) part.changefreq = val
-    }
-    if (priority && priority.length) {
-      const val = check(priority)
-      if (val) part.priority = val
-    }
-    return [...(await acc), part]
-  }, [])
+  }
+  return {
+    loc: url,
+    lastmod: file.stats.mtime.toISOString(),
+    ...(changefreq && changefreq.length && check(changefreq, 'changefreq')),
+    ...(priority && priority.length && check(priority, 'priority'))
+  }
 }
 
 function generateTxtSitemap(urls) {
@@ -80,7 +83,7 @@ function generateTxtSitemap(urls) {
 }
 
 function generateXmlSitemap(urls) {
-  return parser.parse(
+  return js2xmlparser.parse(
     'urlset',
     {
       '@': { xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' },
@@ -94,9 +97,11 @@ function generateXmlSitemap(urls) {
 }
 
 async function run(opts) {
-  const urls = await generateUrls(opts)
+  const files = await getFiles(opts)
+  const iterator = (f) => generateUrl(f, opts)
+  const urls = (await pool(opts.concurrent, files, iterator)).filter((i) => i)
   const generate = async (format) => {
-    const output = format === 'txt' ? generateTxtSitemap(urls) : generateXmlSitemap(urls)
+    const output = format === 'xml' ? generateXmlSitemap(urls) : generateTxtSitemap(urls)
     if (opts.stdout) console.log(output)
     else {
       await fs.writeFile(nodepath.join(opts.root, `sitemap.${format}`), `${output}\n`, 'utf-8')
@@ -107,4 +112,4 @@ async function run(opts) {
   if (['xml', 'both'].includes(opts.format)) await generate('xml')
 }
 
-export { run, log, generateUrls, generateTxtSitemap, generateXmlSitemap }
+export { run, log, getFiles, detectNoindex, generateUrl, generateTxtSitemap, generateXmlSitemap }

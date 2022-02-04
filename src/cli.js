@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-
 import { program, Option } from 'commander'
 import { cosmiconfig } from 'cosmiconfig'
 import { promises as fs } from 'node:fs'
-import { log, run } from './index.js'
+import nodepath from 'node:path'
+import { run, log } from './index.js'
 
 const { version } = JSON.parse(
   await fs.readFile(new URL('../package.json', import.meta.url), 'utf8')
@@ -16,18 +16,12 @@ program
   .description('CLI to generate XML sitemaps for static sites from local filesystem')
   .option('-b, --base <url>', 'base URL (required)')
   .option('-r, --root <dir>', 'root working directory', '.')
-  .option('-m, --match <glob...>', 'micromatch globs to match', ['**/*.html', '!404.html'])
-  .option('-f, --changefreq <glob,changefreq...>', 'comma-separated glob change-frequency pairs')
-  .option('-p, --priority <glob,priority...>', 'comma-separated glob priority pairs')
-  .addOption(
-    new Option('-x, --exclude <regex...>', 'exclude file if contents matches regex').default(
-      [`<meta\\s+name="?'?robots"?'?\\s+content="?'?noindex`],
-      'refer to docs'
-    )
-  )
-  .option('-X, --no-exclude', 'do not search within files')
-  .option('-v, --verbose', 'be more verbose')
-  .option('--no-clean', 'disable clean URLs')
+  .option('-m, --match <glob...>', 'globs to match', ['**/*.html', '!404.html'])
+  .option('-f, --changefreq <glob,changefreq...>', 'comma-separated glob-changefreq pairs')
+  .option('-p, --priority <glob,priority...>', 'comma-separated glob-priority pairs')
+  .option('-X, --no-exclude', 'do not exclude html files containing noindex meta')
+  .option('--concurrent <max>', 'concurrent number of html parsing ops', 50)
+  .option('--no-clean', 'do not use clean URLs')
   .option('--slash', 'add trailing slash to all URLs')
   .addOption(
     new Option('--format <format>', 'sitemap format')
@@ -35,6 +29,7 @@ program
       .default('both')
   )
   .option('--stdout', 'output sitemap to stdout instead')
+  .option('-v, --verbose', 'be more verbose')
   .version(version)
   .addOption(new Option('--debug').hideHelp())
   .parse()
@@ -42,7 +37,7 @@ program
 const opts = { ...program.opts(), ...conf.config }
 
 if (opts.verbose && conf.filepath) {
-  log(`[sscli] found config in '${conf.filepath}'`)
+  log(`found config in ${nodepath.relative(process.cwd(), conf.filepath)}`)
 }
 
 if (!opts.base) {
@@ -60,13 +55,13 @@ if (opts.changefreq && opts.changefreq.length) {
   for (let i of opts.changefreq) {
     i = i.split(',')
     if (i.length !== 2 || !frequencies.includes(i[1])) {
-      program.error('Error: glob change-frequency pairs malformed')
+      program.error('Error: glob-changefreq pairs malformed')
     }
   }
 }
 
 if (opts.priority && opts.priority.length) {
-  const err = () => program.error('Error: glob priority pairs malformed')
+  const err = () => program.error('Error: glob-priority pairs malformed')
   for (let i of opts.priority) {
     i = i.split(',')
     if (i.length !== 2) err()
@@ -75,13 +70,19 @@ if (opts.priority && opts.priority.length) {
   }
 }
 
+if (!opts.clean && opts.slash) {
+  program.error(`Error: can't add trailing slash to unclean urls`)
+}
+
 if (opts.debug) {
   console.warn(opts)
   process.exit()
 }
 
 try {
-  run(opts)
+  await run(opts)
 } catch (err) {
-  program.error(err)
+  if (err.message === 'NO_MATCHES') program.error(`Error: no matches found`)
+  console.error(err)
+  process.exit(1)
 }
