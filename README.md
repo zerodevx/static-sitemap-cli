@@ -173,7 +173,8 @@ const urls = [
   ...
 ]
 
-generateXmlSitemap(urls).then((xml) => console.log(xml))
+const xml = generateXmlSitemap(urls)
+console.log(xml)
 ```
 
 ## Development
