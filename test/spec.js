@@ -31,6 +31,7 @@ test('basic sitemaps', (t) => {
   t.not(xml.slice(-2), '\n\n')
   t.false(xml.includes('.html'))
   t.false(xml.includes('https://x.com/noindex'))
+  t.false(xml.includes('404'))
   fs.unlinkSync(`${p}.xml`)
 
   const txt = fs.readFileSync(`${p}.txt`, 'utf-8')
@@ -46,46 +47,46 @@ test('basic sitemaps', (t) => {
 })
 
 test('ignore some files', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'txt', '-i', 'blog/events/**', 'blog/mixed-1.html')
+  const { stdout } = run(
+    'fixtures',
+    '--stdout',
+    '-f',
+    'txt',
+    '-i',
+    'blog/events/**',
+    'blog/mixed-1.html'
+  )
   t.false(stdout.includes('https://x.com/blog/events'))
   t.false(stdout.includes('https://x.com/blog/mixed-1'))
-  t.true(stdout.includes('https://x.com/blog/mixed-2'))  
+  t.true(stdout.includes('https://x.com/blog/mixed-2'))
 })
 
 test('changefreq works', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '-c', 'about/index.html,daily')
+  const { stdout } = run('fixtures', '--stdout', '-f', 'xml', '-c', 'about/index.html,daily')
   t.true(stdout.includes('<changefreq>daily</changefreq>'))
 })
 
 test('priority works', (t) => {
-  const { stdout } = run(
-    'fixtures',
-    '--stdout',
-    '--format',
-    'xml',
-    '-p',
-    'blog/**,0',
-    'blog/news/**,0.9'
-  )
+  const { stdout } = run('fixtures', '--stdout', '-f', 'xml', '-p', 'blog/**,0', 'blog/news/**,0.9')
   t.true(stdout.includes('<priority>0</priority'))
   t.true(stdout.includes('<priority>0.9</priority'))
 })
 
 test('unclean urls', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '--no-clean')
+  const { stdout } = run('fixtures', '--stdout', '-f', 'xml', '--no-clean')
   t.true(stdout.includes('https://x.com/index.html</loc>'))
   t.true(stdout.includes('https://x.com/blog/news/post-2.html</loc>'))
 })
 
 test('trailing slash', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '--slash')
+  const { stdout } = run('fixtures', '--stdout', '-f', 'xml', '--slash')
   t.true(stdout.includes('https://x.com/</loc>'))
   t.true(stdout.includes('https://x.com/hello/</loc>'))
   t.true(stdout.includes('https://x.com/blog/mixed-1/</loc>'))
 })
 
 test('can disable robots check', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '--no-robots')
+  const { stdout } = run('fixtures', '--stdout', '-f', 'xml', '--no-robots')
   t.true(stdout.includes('https://x.com/noindex/not-indexed</loc>'))
   t.true(stdout.includes('https://x.com/noindex/not-indexed-2</loc>'))
 })

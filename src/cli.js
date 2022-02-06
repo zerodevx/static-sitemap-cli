@@ -24,7 +24,7 @@ program
   .option('--no-clean', 'do not use clean URLs')
   .option('--slash', 'add trailing slash to all URLs')
   .addOption(
-    new Option('--format <format>', 'sitemap format')
+    new Option('-f, --format <format>', 'sitemap format')
       .choices(['xml', 'txt', 'both'])
       .default('both')
   )
