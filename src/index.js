@@ -10,8 +10,8 @@ function log(msg) {
   console.warn('\x1b[36m%s\x1b[0m', `[sscli] ${msg}`)
 }
 
-async function getFiles({ root, match, verbose }) {
-  const files = await fastglob(match, { cwd: root, stats: true })
+async function getFiles({ root, ignore, verbose }) {
+  const files = await fastglob('**/*.html', { cwd: root, stats: true, ignore })
   if (!files.length) {
     throw new Error('NO_MATCHES')
   }

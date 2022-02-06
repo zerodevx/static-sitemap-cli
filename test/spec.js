@@ -45,9 +45,11 @@ test('basic sitemaps', (t) => {
   fs.unlinkSync(`${p}.txt`)
 })
 
-test('matches only what is specified', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'txt', '-m', 'about/*.html')
-  t.is(stdout, 'https://x.com/about')
+test('ignore some files', (t) => {
+  const { stdout } = run('fixtures', '--stdout', '--format', 'txt', '-i', 'blog/events/**', 'blog/mixed-1.html')
+  t.false(stdout.includes('https://x.com/blog/events'))
+  t.false(stdout.includes('https://x.com/blog/mixed-1'))
+  t.true(stdout.includes('https://x.com/blog/mixed-2'))  
 })
 
 test('changefreq works', (t) => {

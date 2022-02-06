@@ -16,7 +16,7 @@ program
   .description('CLI to generate XML sitemaps for static sites from local filesystem')
   .option('-b, --base <url>', 'base URL (required)')
   .option('-r, --root <dir>', 'root working directory', '.')
-  .option('-m, --match <glob...>', 'globs to match', ['**/*.html', '!404.html'])
+  .option('-i, --ignore <glob...>', 'globs to ignore', ['404.html'])
   .option('-f, --changefreq <glob,changefreq...>', 'comma-separated glob-changefreq pairs')
   .option('-p, --priority <glob,priority...>', 'comma-separated glob-priority pairs')
   .option('-X, --no-exclude', 'do not exclude html files containing noindex meta')
