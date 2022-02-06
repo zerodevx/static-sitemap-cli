@@ -19,7 +19,7 @@ program
   .option('-i, --ignore <glob...>', 'globs to ignore', ['404.html'])
   .option('-f, --changefreq <glob,changefreq...>', 'comma-separated glob-changefreq pairs')
   .option('-p, --priority <glob,priority...>', 'comma-separated glob-priority pairs')
-  .option('-X, --no-exclude', 'do not exclude html files containing noindex meta')
+  .option('--no-robots', 'do not parse html files for noindex meta')
   .option('--concurrent <max>', 'concurrent number of html parsing ops', 50)
   .option('--no-clean', 'do not use clean URLs')
   .option('--slash', 'add trailing slash to all URLs')

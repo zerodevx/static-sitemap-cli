@@ -45,9 +45,9 @@ function detectNoindex(path) {
 
 async function generateUrl(
   file,
-  { root, base, changefreq, priority, verbose, exclude, clean, slash }
+  { root, base, changefreq, priority, robots, clean, slash, verbose }
 ) {
-  if (exclude) {
+  if (robots) {
     if (await detectNoindex(nodepath.join(root, file.path))) {
       if (verbose) log(`noindex: ${file.path}`)
       return

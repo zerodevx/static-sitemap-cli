@@ -85,7 +85,7 @@ test('trailing slash', (t) => {
 })
 
 test('can disable robots check', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '-X')
+  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '--no-robots')
   t.true(stdout.includes('https://x.com/noindex/not-indexed</loc>'))
   t.true(stdout.includes('https://x.com/noindex/not-indexed-2</loc>'))
 })
