@@ -1,6 +1,6 @@
 {
   "name": "static-sitemap-cli",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "CLI to generate XML sitemaps for static sites from local filesystem",
   "author": "Jason Lee <jason@zerodevx.com>",
   "type": "module",
