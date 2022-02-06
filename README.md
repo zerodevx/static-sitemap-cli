@@ -77,9 +77,8 @@ Hides the `.html` file extension in sitemaps like so:
 
 ```
 ./rootDir/index.html -> https://example.com/
-./rootDir/hello.html -> https://example.com/hello
-./rootDor/foo/bar/index.html -> https://example.com/foo/bar
-./rootDor/foo/bar/foobar.html -> https://example.com/foo/bar/foobar
+./rootDor/foo/index.html -> https://example.com/foo
+./rootDor/foo/bar.html -> https://example.com/foo/bar
 ```
 
 Enabled by default; pass option `--no-clean` to disable.
@@ -90,9 +89,8 @@ Adds a trailing slash to all URLs like so:
 
 ```
 ./rootDir/index.html -> https://example.com/
-./rootDir/hello.html -> https://example.com/hello/
-./rootDir/foo/bar/index.html -> https://example.com/foo/bar/
-./rootDir/foo/bar/foobar.html -> https://example.com/foo/bar/foobar/
+./rootDir/foo/index.html -> https://example.com/foo/
+./rootDir/foo/bar.html -> https://example.com/foo/bar/
 ```
 
 Disabled by default; pass option `--slash` to enable.
@@ -103,8 +101,8 @@ root domains.
 
 #### Ignore some files
 
-The `-i` flag allows multiple entries. By default, it's set to the `["404.html"]`. You can change
-the glob ignore patterns to suit your use-case like so:
+The `-i` flag allows multiple entries. By default, it's set to the `["404.html"]`. Change the glob
+ignore patterns to suit your use-case like so:
 
 ```
 $ sscli ... -i '404.html' '**/ignore/**' 'this/other/specific/file.html'
@@ -153,7 +151,11 @@ $ sscli -b https://x.com/foo -r dist/foo -f txt -o > dist/sitemap.txt
 `static-sitemap-cli` can also be used as a Node module.
 
 ```js
-import { run } from 'static-sitemap-cli'
+import {
+  generateUrls,
+  generateXmlSitemap,
+  generateTxtSitemap
+} from 'static-sitemap-cli'
 
 const options = {
   base: 'https://x.com',
@@ -164,14 +166,17 @@ const options = {
   robots: true,
   concurrent: 128,
   clean: true,
-  slash: false,
-  format: 'both'
+  slash: false
 }
 
-run(options).then(() => console.log('done!'))
+generateUrls(options).then((urls) => {
+  const xmlString = generateXmlSitemap(urls)
+  const txtString = generateTxtSitemap(urls)
+  ...
+})
 ```
 
-To use the XML sitemap generator programmatically:
+Using the XML sitemap generator by itself:
 
 ```js
 import { generateXmlSitemap } from 'static-sitemap-cli'
@@ -183,7 +188,6 @@ const urls = [
 ]
 
 const xml = generateXmlSitemap(urls)
-console.log(xml)
 ```
 
 ## Development

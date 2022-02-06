@@ -42,7 +42,7 @@ function detectNoindex(path) {
   })
 }
 
-async function generateUrl(
+async function transformUrl(
   file,
   { root, base, changefreq, priority, robots, clean, slash, verbose }
 ) {
@@ -72,6 +72,13 @@ async function generateUrl(
   }
 }
 
+async function generateUrls(opts) {
+  const files = await getFiles(opts)
+  const iterator = (f) => transformUrl(f, opts)
+  const urls = await pool(opts.concurrent, files, iterator)
+  return urls.filter((i) => i)
+}
+
 function generateTxtSitemap(urls) {
   let output = ''
   for (let a = 0; a < urls.length; a++) {
@@ -96,9 +103,7 @@ function generateXmlSitemap(urls) {
 }
 
 async function run(opts) {
-  const files = await getFiles(opts)
-  const iterator = (f) => generateUrl(f, opts)
-  const urls = (await pool(opts.concurrent, files, iterator)).filter((i) => i)
+  const urls = await generateUrls(opts)
   const generate = async (format) => {
     const output = format === 'xml' ? generateXmlSitemap(urls) : generateTxtSitemap(urls)
     if (opts.stdout) console.log(output)
@@ -111,4 +116,13 @@ async function run(opts) {
   if (['xml', 'both'].includes(opts.format)) await generate('xml')
 }
 
-export { run, log, getFiles, detectNoindex, generateUrl, generateTxtSitemap, generateXmlSitemap }
+export {
+  run,
+  log,
+  getFiles,
+  detectNoindex,
+  transformUrl,
+  generateUrls,
+  generateTxtSitemap,
+  generateXmlSitemap
+}
