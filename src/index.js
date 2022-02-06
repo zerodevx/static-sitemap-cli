@@ -24,22 +24,21 @@ async function getFiles({ root, ignore, verbose }) {
 
 function detectNoindex(path) {
   return new Promise((resolve) => {
+    let noindex
     const parser = new WritableStream({
       onopentag(tag, { name, content }) {
         if (tag === 'meta' && name === 'robots' && content.includes('noindex')) {
+          noindex = true
           parser.end()
-          resolve(true)
         }
       },
       onclosetag(tag) {
-        if (tag === 'head') {
-          parser.end()
-          resolve()
-        }
+        if (tag === 'head') parser.end()
       }
     })
-    const filestream = createReadStream(path)
-    filestream.pipe(parser).on('finish', resolve)
+    createReadStream(path, { highWaterMark: 1024 })
+      .pipe(parser)
+      .on('finish', () => resolve(noindex))
   })
 }
 
