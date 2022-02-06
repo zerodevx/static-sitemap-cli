@@ -20,7 +20,7 @@ program
   .option('-c, --changefreq <glob,changefreq...>', 'comma-separated glob-changefreq pairs')
   .option('-p, --priority <glob,priority...>', 'comma-separated glob-priority pairs')
   .option('--no-robots', 'do not parse html files for noindex meta')
-  .option('--concurrent <max>', 'concurrent number of html parsing ops', 50)
+  .option('--concurrent <max>', 'concurrent number of html parsing ops', 128)
   .option('--no-clean', 'do not use clean URLs')
   .option('--slash', 'add trailing slash to all URLs')
   .addOption(
