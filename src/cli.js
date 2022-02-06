@@ -28,7 +28,7 @@ program
       .choices(['xml', 'txt', 'both'])
       .default('both')
   )
-  .option('--stdout', 'output sitemap to stdout instead')
+  .option('-o, --stdout', 'output sitemap to stdout instead')
   .option('-v, --verbose', 'be more verbose')
   .version(version)
   .addOption(new Option('--debug').hideHelp())
