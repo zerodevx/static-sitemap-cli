@@ -53,7 +53,7 @@ test('ignore some files', (t) => {
 })
 
 test('changefreq works', (t) => {
-  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '-f', 'about/index.html,daily')
+  const { stdout } = run('fixtures', '--stdout', '--format', 'xml', '-c', 'about/index.html,daily')
   t.true(stdout.includes('<changefreq>daily</changefreq>'))
 })
 
