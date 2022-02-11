@@ -10,8 +10,8 @@ function log(msg) {
   console.warn('\x1b[36m%s\x1b[0m', `[sscli] ${msg}`)
 }
 
-async function getFiles({ root, ignore, verbose }) {
-  const files = await fastglob('**/*.html', { cwd: root, stats: true, ignore })
+async function getFiles({ root, match, ignore, verbose }) {
+  const files = await fastglob(match, { cwd: root, stats: true, ignore })
   if (!files.length) {
     throw new Error('NO_MATCHES')
   }
@@ -43,16 +43,18 @@ function detectNoindex(path) {
 }
 
 async function transformUrl(
-  file,
+  { path, stats: { mtime } },
   { root, base, changefreq, priority, robots, clean, slash, verbose }
 ) {
-  if (robots) {
-    if (await detectNoindex(nodepath.join(root, file.path))) {
-      if (verbose) log(`noindex: ${file.path}`)
-      return
-    }
+  if (
+    robots &&
+    nodepath.extname(path) === '.html' &&
+    (await detectNoindex(nodepath.join(root, path)))
+  ) {
+    if (verbose) log(`noindex: ${path}`)
+    return
   }
-  let url = base + file.path.split(nodepath.sep).join('/')
+  let url = base + path.split(nodepath.sep).join('/')
   if (clean) {
     if (url.slice(-11) === '/index.html') url = url.slice(0, -11)
     else if (url.slice(-5) === '.html') url = url.slice(0, -5)
@@ -61,12 +63,12 @@ async function transformUrl(
   const check = (pairs, tagname) => {
     for (let a = pairs.length - 1; a >= 0; a--) {
       const p = pairs[a].split(',')
-      if (micromatch.isMatch(file.path, p[0])) return { [tagname]: p[1] }
+      if (micromatch.isMatch(path, p[0])) return { [tagname]: p[1] }
     }
   }
   return {
     loc: url,
-    lastmod: file.stats.mtime.toISOString(),
+    lastmod: mtime.toISOString(),
     ...(changefreq && changefreq.length && check(changefreq, 'changefreq')),
     ...(priority && priority.length && check(priority, 'priority'))
   }
