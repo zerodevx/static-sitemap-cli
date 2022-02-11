@@ -27,6 +27,7 @@ test('basic sitemaps', (t) => {
   t.true(xml.includes('<loc>https://x.com/blog</loc>'))
   t.true(xml.includes('<loc>https://x.com/blog/mixed-2</loc>'))
   t.true(xml.includes('<loc>https://x.com/blog/events/event-1</loc>'))
+  t.true(xml.includes('<loc>https://x.com/media</loc>'))
   t.is(xml.slice(-1), '\n')
   t.not(xml.slice(-2), '\n\n')
   t.false(xml.includes('.html'))
@@ -81,4 +82,9 @@ test('can disable robots check', (t) => {
   const { stdout } = run('fixtures', '-o', '-f', 'xml', '--no-robots')
   t.true(stdout.includes('https://x.com/noindex/not-indexed</loc>'))
   t.true(stdout.includes('https://x.com/noindex/not-indexed-2</loc>'))
+})
+
+test('match media assets', (t) => {
+  const { stdout } = run('fixtures', '-m', '**/*.{jpg,png}', '-o', '-f', 'txt')
+  t.is(stdout, 'https://x.com/media/cats.jpg\nhttps://x.com/media/dogs.png')
 })
