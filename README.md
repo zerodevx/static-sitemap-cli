@@ -43,6 +43,7 @@ CLI to generate XML sitemaps for static sites from local filesystem
 Options:
   -b, --base <url>                       base URL (required)
   -r, --root <dir>                       root working directory (default: ".")
+  -m, --match <glob...>                  globs to match (default: ["**/*.html"])
   -i, --ignore <glob...>                 globs to ignore (default: ["404.html"])
   -c, --changefreq <glob,changefreq...>  comma-separated glob-changefreq pairs
   -p, --priority <glob,priority...>      comma-separated glob-priority pairs
@@ -59,7 +60,7 @@ Options:
 
 #### HTML parsing
 
-By default, all matched files are piped through a fast
+By default, all matched `.html` files are piped through a fast
 [HTML parser](https://github.com/fb55/htmlparser2) to detect if the `noindex`
 [meta tag](https://developers.google.com/search/docs/advanced/crawling/block-indexing#meta-tag) is
 set - typically in the form of `<meta name="robots" content="noindex" />` - in which case that file
@@ -99,13 +100,13 @@ Disabled by default; pass option `--slash` to enable.
 [always added](https://github.com/zerodevx/static-sitemap-cli/tree/v1#to-slash-or-not-to-slash) to
 root domains.
 
-#### Ignore some files
+#### Match or ignore files
 
-The `-i` flag allows multiple entries. By default, it's set to the `["404.html"]`. Change the glob
-ignore patterns to suit your use-case like so:
+The `-m` and `-i` flags allow multiple entries. By default, they are set to the `["**/*.html"]` and
+`["404.html"]` respectively. Change the glob patterns to suit your use-case like so:
 
 ```
-$ sscli ... -i '404.html' '**/ignore/**' 'this/other/specific/file.html'
+$ sscli ... -m '**/*.{html,jpg,png}' -i '404.html' 'ignore/**' 'this/other/specific/file.html'
 ```
 
 #### Glob-[*] pairs
@@ -143,7 +144,13 @@ $ sscli -b https://x.com -r dist -f xml -o > www/sm.xml
 #### Get subset of a directory
 
 ```
-$ sscli -b https://x.com/foo -r dist/foo -f txt -o > dist/sitemap.txt
+$ sscli -b https://x.com/foo -r dist/foo -f xml -o > dist/sitemap.xml
+```
+
+#### Generate TXT sitemap for image assets
+
+```
+$ sscli -b https://x.com -r dist -m '**/*.{jpg,jpeg,gif,png,bmp,webp,svg}' -f txt
 ```
 
 ## Programmatic Use
@@ -160,6 +167,7 @@ import {
 const options = {
   base: 'https://x.com',
   root: 'path/to/root',
+  match: ['**/*html'],
   ignore: ['404.html'],
   changefreq: [],
   priority: [],
