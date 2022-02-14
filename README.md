@@ -96,7 +96,7 @@ Adds a trailing slash to all URLs like so:
 
 Disabled by default; pass option `--slash` to enable.
 
-**NOTE:** Cannot be used together with `-no-clean`. Also, trailing slashes are
+**NOTE:** Cannot be used together with `--no-clean`. Also, trailing slashes are
 [always added](https://github.com/zerodevx/static-sitemap-cli/tree/v1#to-slash-or-not-to-slash) to
 root domains.
 

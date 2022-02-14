@@ -88,3 +88,19 @@ test('match media assets', (t) => {
   const { stdout } = run('fixtures', '-m', '**/*.{jpg,png}', '-o', '-f', 'txt')
   t.is(stdout, 'https://x.com/media/cats.jpg\nhttps://x.com/media/dogs.png')
 })
+
+test('output not malformed if base is non-root', (t) => {
+  const run2 = (root, ...args) =>
+    execaSync('node', [
+      path.join(__testdir, '..', 'src', 'cli.js'),
+      '-b',
+      'https://x.com/foo',
+      '-r',
+      path.join(__testdir, ...root.split('/')),
+      ...args
+    ])
+  const { stdout } = run2('fixtures/about', '-o', '-f', 'txt')
+  t.is(stdout, 'https://x.com/foo')
+  const { stdout: stdout2 } = run2('fixtures/about', '-o', '-f', 'txt', '--slash')
+  t.is(stdout2, 'https://x.com/foo/')
+})
