@@ -50,6 +50,7 @@ try {
 } catch {
   program.error('Error: base is not a valid URL')
 }
+if (!opts.base.endsWith('/')) opts.base += '/'
 
 if (opts.changefreq && opts.changefreq.length) {
   const frequencies = ['always', 'hourly', 'daily', 'weekly', 'monthly', 'yearly', 'never']
