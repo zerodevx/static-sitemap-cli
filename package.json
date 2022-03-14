@@ -1,6 +1,6 @@
 {
   "name": "static-sitemap-cli",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "CLI to generate XML sitemaps for static sites from local filesystem",
   "author": "Jason Lee <jason@zerodevx.com>",
   "type": "module",
@@ -24,9 +24,9 @@
     "tiny-async-pool": "^1.2.0"
   },
   "devDependencies": {
-    "ava": "^4.0.1",
-    "eslint": "^8.9.0",
-    "eslint-config-prettier": "^8.3.0",
+    "ava": "^4.1.0",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
     "execa": "^6.1.0",
     "prettier": "^2.5.1"
   },
