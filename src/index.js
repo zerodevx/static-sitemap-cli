@@ -78,7 +78,16 @@ async function generateUrls(opts) {
   const files = await getFiles(opts)
   const iterator = (f) => transformUrl(f, opts)
   const urls = await pool(opts.concurrent, files, iterator)
-  return urls.filter((i) => i)
+  return urls
+    .filter((i) => i)
+    .sort(({ loc: a }, { loc: b }) => {
+      const depth = (url) => url.split('/').length
+      if (depth(a) === depth(b)) {
+        return a < b ? -1 : 1
+      } else {
+        return depth(a) < depth(b) ? -1 : 1
+      }
+    })
 }
 
 function generateTxtSitemap(urls) {
