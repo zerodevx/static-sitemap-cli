@@ -1,7 +1,7 @@
 import fastglob from 'fast-glob'
 import micromatch from 'micromatch'
 import js2xmlparser from 'js2xmlparser'
-import { WritableStream } from 'htmlparser2/lib/WritableStream.js'
+import { WritableStream } from 'htmlparser2/lib/WritableStream'
 import pool from 'tiny-async-pool'
 import nodepath from 'node:path'
 import { createReadStream, promises as fs } from 'node:fs'
@@ -77,17 +77,18 @@ async function transformUrl(
 async function generateUrls(opts) {
   const files = await getFiles(opts)
   const iterator = (f) => transformUrl(f, opts)
-  const urls = await pool(opts.concurrent, files, iterator)
-  return urls
-    .filter((i) => i)
-    .sort(({ loc: a }, { loc: b }) => {
-      const depth = (url) => url.split('/').length
-      if (depth(a) === depth(b)) {
-        return a < b ? -1 : 1
-      } else {
-        return depth(a) < depth(b) ? -1 : 1
-      }
-    })
+  const urls = []
+  for await (const i of pool(opts.concurrent, files, iterator)) {
+    if (i) urls.push(i)
+  }
+  return urls.sort(({ loc: a }, { loc: b }) => {
+    const depth = (url) => url.split('/').length
+    if (depth(a) === depth(b)) {
+      return a < b ? -1 : 1
+    } else {
+      return depth(a) < depth(b) ? -1 : 1
+    }
+  })
 }
 
 function generateTxtSitemap(urls) {
