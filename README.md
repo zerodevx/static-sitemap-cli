@@ -48,7 +48,7 @@ Options:
   -c, --changefreq <glob,changefreq...>  comma-separated glob-changefreq pairs
   -p, --priority <glob,priority...>      comma-separated glob-priority pairs
   --no-robots                            do not parse html files for noindex meta
-  --concurrent <max>                     concurrent number of html parsing ops (default: 128)
+  --concurrent <max>                     concurrent number of html parsing ops (default: 32)
   --no-clean                             do not use clean URLs
   --slash                                add trailing slash to all URLs
   -f, --format <format>                  sitemap format (choices: "xml", "txt", "both", default: "both")
@@ -69,8 +69,8 @@ is excluded from the generated sitemap. To disable this behaviour, pass option `
 For better performance, file reads are streamed in `1kb` chunks, and parsing stops immediately when
 either the `noindex` meta, or the `</head>` closing tag, is detected (the `<body>` is not parsed).
 This operation is performed concurrently with an
-[async pool](https://github.com/rxaviers/async-pool) limit of 128. The limit can be tweaked using
-the `--concurrent` option.
+[async pool](https://github.com/rxaviers/async-pool) limit of 32. The limit can be tweaked using the
+`--concurrent` option.
 
 #### Clean URLs
 
@@ -172,7 +172,7 @@ const options = {
   changefreq: [],
   priority: [],
   robots: true,
-  concurrent: 128,
+  concurrent: 32,
   clean: true,
   slash: false
 }
