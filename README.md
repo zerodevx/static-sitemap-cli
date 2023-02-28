@@ -1,5 +1,5 @@
-![npm](https://img.shields.io/npm/v/static-sitemap-cli)
-![npm](https://img.shields.io/npm/dm/static-sitemap-cli)
+[![npm (tag)](https://img.shields.io/npm/v/static-sitemap-cli/latest)](https://www.npmjs.com/package/static-sitemap-cli)
+[![npm](https://img.shields.io/npm/dm/static-sitemap-cli)](https://www.npmjs.com/package/static-sitemap-cli)
 
 # static-sitemap-cli
 
