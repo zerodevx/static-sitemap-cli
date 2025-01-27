@@ -104,3 +104,17 @@ test('output not malformed if base is non-root', (t) => {
   const { stdout: stdout2 } = run2('fixtures/about', '-o', '-f', 'txt', '--slash')
   t.is(stdout2, 'https://x.com/foo/')
 })
+
+test('package.json has correct dependencies', (t) => {
+  const pkg = JSON.parse(fs.readFileSync(path.join(__testdir, '..', 'package.json'), 'utf-8'))
+  const dependencies = Object.keys(pkg.dependencies)
+  t.deepEqual(dependencies, [
+    'commander',
+    'cosmiconfig',
+    'fast-glob',
+    'htmlparser2',
+    'js2xmlparser',
+    'micromatch',
+    'tiny-async-pool'
+  ])
+})
