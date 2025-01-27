@@ -1,7 +1,7 @@
 import fastglob from 'fast-glob'
 import micromatch from 'micromatch'
 import js2xmlparser from 'js2xmlparser'
-import { WritableStream } from 'htmlparser2/lib/WritableStream'
+import { WritableStream } from 'htmlparser2/WritableStream'
 import pool from 'tiny-async-pool'
 import nodepath from 'node:path'
 import { createReadStream, promises as fs } from 'node:fs'
