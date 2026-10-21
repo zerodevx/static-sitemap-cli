@@ -1,41 +1,40 @@
 {
   "name": "static-sitemap-cli",
-  "version": "2.2.8",
+  "version": "3.0.0",
   "description": "CLI to generate XML sitemaps for static sites from local filesystem",
   "author": "Jason Lee <jason@zerodevx.com>",
-  "type": "module",
-  "exports": "./src/index.js",
-  "bin": {
-    "static-sitemap-cli": "./src/cli.js",
-    "sscli": "./src/cli.js"
-  },
   "scripts": {
-    "format": "prettier --write .",
-    "lint": "eslint",
-    "test": "prettier --check . && eslint && ava && npx publint"
+    "emit": "tsc index.js -d --emitDeclarationOnly --allowJs && prettier --write index.d.ts",
+    "lint": "npm run emit && prettier --check . && eslint && npx publint",
+    "test": "npm run lint && node --test"
   },
   "dependencies": {
-    "commander": "^15.0.0",
-    "cosmiconfig": "^9.0.2",
-    "fast-glob": "^3.3.3",
-    "htmlparser2": "^12.0.0",
-    "js2xmlparser": "^5.0.0",
-    "micromatch": "^4.0.8",
-    "tiny-async-pool": "^2.1.0"
+    "htmlparser2": "^12.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "ava": "^8.0.1",
-    "eslint": "^10.6.0",
-    "execa": "^9.6.1",
-    "globals": "^17.7.0",
-    "prettier": "^3.9.4"
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2"
+  },
+  "type": "module",
+  "exports": "./index.js",
+  "types": "./index.d.ts",
+  "bin": {
+    "static-sitemap-cli": "./cli.js",
+    "sscli": "./cli.js"
   },
   "files": [
-    "src/"
+    "index.js",
+    "index.d.ts",
+    "cli.js"
   ],
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "license": "ISC",
-  "homepage": "https://npmjs.com/package/static-sitemap-cli",
+  "homepage": "https://github.com/zerodevx/static-sitemap-cli",
   "repository": "github:zerodevx/static-sitemap-cli",
   "keywords": [
     "sscli",
